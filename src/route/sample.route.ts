@@ -82,9 +82,4 @@ sampleRouter.get(
     SampleController.loadDashboard
 )
 
-sampleRouter.get(
-    "/answer-by-gender",
-    SampleController.answerByGender
-)
-
 export { sampleRouter };

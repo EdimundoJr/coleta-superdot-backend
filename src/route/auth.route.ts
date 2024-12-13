@@ -12,7 +12,9 @@ authRouter.post(
     "/register",
     [uploaderConfig.single("personalData[profilePhoto]"), validateDTO(researcherDTO)],
     AuthController.registerHandler
+    
 );
+
 
 authRouter.post("/login", [validateDTO(loginDTO)], AuthController.loginHandler);
 

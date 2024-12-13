@@ -87,6 +87,8 @@ export const updateResearcherDTO = object({
         ),
 });
 
+
+
 export type ResearcherDTO = z.infer<typeof researcherDTO>;
 export type UpdateResearcherDTO = z.infer<typeof updateResearcherDTO>;
 export type PaginateResearcherDTO = z.infer<typeof paginateResearcherDTO>;

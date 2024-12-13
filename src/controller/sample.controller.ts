@@ -207,13 +207,14 @@ export async function handlerGetSampleById(req: Request<GetSampleByIdDTO["params
         // TO DO errors handlers
         res.status(409).send(e.message);
     }
+
+
 }
 
 export async function loadDashboard (req: Request<{}, {}, {}, {}>, res: Response) {
     try {
         
         const result = await SampleService.loadInformationDashboard();
-        // console.log(result)
         res.status(200).json({ result });  
 
         
@@ -226,19 +227,3 @@ export async function loadDashboard (req: Request<{}, {}, {}, {}>, res: Response
 
 }
 
-export async function answerByGender (req: Request<{}, {}, {}, {}>, res: Response) {
-    try {
-        
-        const result = await SampleService.loadanswerByGender();
-        // console.log(result)
-        res.status(200).json({ result });  
-
-        
-    } catch (e: any) {
-        console.error(e);
-
-        // TO DO errors handlers
-        res.status(409).send(e.message);
-    }
-
-}

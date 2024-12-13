@@ -34,6 +34,7 @@ export async function updateResearcher(
     }
 }
 
+
 export async function deleteResearcher(researcherId: Types.ObjectId): Promise<IResearcher> {
     try {
         const researcherDeleted = await ResearcherModel.findByIdAndDelete(researcherId).exec();
@@ -45,6 +46,8 @@ export async function deleteResearcher(researcherId: Types.ObjectId): Promise<IR
         throw new Error("Is not possible delete Researcher");
     }
 }
+
+
 
 export async function paginateResearchers(
     currentPage: number,
@@ -64,6 +67,7 @@ export async function paginateResearchers(
                 fullname: "$personalData.fullName",
                 role: true,
                 email: true,
+                profilePhoto: true,
             }
         )
             .where("_id")
@@ -160,3 +164,6 @@ export async function getResearchDataBySampleIdAndParticipantId({
         participantName: participant.personalData?.fullName,
     };
 }
+
+
+

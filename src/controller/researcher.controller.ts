@@ -48,14 +48,8 @@ export const researcherBody = async (req: Request<{}, {}, {}, {}>, res: Response
         if (!researcher) {
             throw new Error("Researcher not found!");
         }
-        const responseData = {
-            researcher: researcher.personalData,
-            role: researcher.role
-        };
 
-        // Enviamos o objeto como resposta
-        res.status(200).json(responseData);
-    
+        res.status(200).json(researcher.personalData);
     } catch (e: any) {
         console.error(e);
 
