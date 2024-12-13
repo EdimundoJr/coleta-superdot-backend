@@ -1,0 +1,22 @@
+doctype html 
+html 
+    head 
+        style 
+            include style.css
+    body 
+        h1 Olá, #{researcherName}!
+        p A plataforma SuperDot informa que o administrador #{admName} alterou seu perfil de utilização.        
+        p
+            b Novo perfil: #{newRole}
+        p Administrador responsável: #{admName} (#{admEmail})
+        p Mensagem do administrador: #{admMessage}
+
+        br
+        a(href=systemURL target="_blank") Clique aqui para acessar o sistema
+        br
+        br
+        footer Caso o botão não funcione, utilize a URL a seguir: #{systemURL}
+        br
+        br               
+
+        footer Essa mensagem é automática e não deve ser respondida.

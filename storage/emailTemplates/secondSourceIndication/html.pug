@@ -1,0 +1,22 @@
+doctype html 
+html 
+    head 
+        style 
+            include style.css
+    body 
+        h1 Olá, #{secondSourceName}!
+        h3 A plataforma SuperDot informa que o participante #{participantName} indicou você para responder o Questionário de Avaliação de Altas Habilidades ou Superdotação - Segunda fonte.
+        
+        p Participante responsável pela indicação: #{participantName} (#{participantEmail})
+
+        br
+        a(href=systemURL target="_blank") Clique aqui para acessar o sistema
+        br
+        br
+        footer Caso o botão não funcione, utilize a URL a seguir: #{systemURL}
+                
+        br
+        p O SuperDot é uma plataforma utilizada por pesquisadores de AH/SD para coletar e analisar dados de participantes de pesquisas.
+        br
+
+        footer Essa mensagem é automática e não deve ser respondida.

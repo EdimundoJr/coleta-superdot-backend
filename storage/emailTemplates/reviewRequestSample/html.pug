@@ -1,0 +1,30 @@
+doctype html 
+html 
+    head 
+        style 
+            include style.css
+    body 
+        h1 Olá, #{researcherName}!
+        h3 A plataforma SuperDot informa que a sua solicitação de amostra foi revisada.
+
+        p
+            b Resultado: #{sampleStatus}
+        p Amostra: #{sampleName}
+        #qttParticipantsAuthorized
+            if qttParticipantsAuthorized
+                p Quantidade de participantes autorizados na pesquisa: #{qttParticipantsAuthorized}
+        p Responsável pela revisão: #{reviewerFullName} (#{reviewerEmail})
+        p Data da revisão: #{reviewDate}
+
+        p Mensagem encaminhada pelo revisor(a): #{reviewerMessage}
+
+        br
+        a(href=systemURL target="_blank") Clique aqui para acessar o sistema
+        br
+        br
+        footer Caso o botão não funcione, utilize a URL a seguir: #{systemURL}
+                
+        br
+        br
+
+        footer Essa mensagem é automática e não deve ser respondida.

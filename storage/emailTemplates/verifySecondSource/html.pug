@@ -1,0 +1,21 @@
+doctype html 
+html 
+    head 
+        style 
+            include style.css
+    body 
+        #secondSourceName
+            if secondSourceName
+                h1 Olá, #{secondSourceName}!
+            else
+                h1 Olá, participante!
+
+        p Você solicitou um link de verificação de e-mail para iniciar/continuar do Questionário de Altas Habilidades ou Superdotação - Adulto (Segunda Fonte).
+        
+        p
+            b Utilize o link abaixo. 
+        
+        a(href=verificationUrl target=_blank) #{verificationUrl}
+
+        footer Caso não tenha solicitado o código, desconsidere essa mensagem.
+        footer Essa mensagem é automática e não deve ser respondida.

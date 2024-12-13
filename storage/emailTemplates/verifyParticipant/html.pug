@@ -1,0 +1,24 @@
+doctype html 
+html 
+    head 
+        style 
+            include style.css
+    body 
+        #participantName
+            if participantName
+                h1 Olá, #{participantName}!
+            else
+                h1 Olá, participante!
+
+        p Você solicitou um link de verificação de e-mail para iniciar/continuar o preenchimento do Questionário de Altas Habilidades ou Superdotação - Adulto.
+        
+        p
+            b Utilize o link abaixo. 
+        
+        a(href=verificationUrl target=_blank) #{verificationUrl}
+        
+        br
+        br
+
+        footer Caso não tenha solicitado, desconsidere essa mensagem.
+        footer Essa mensagem é automática e não deve ser respondida.
