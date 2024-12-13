@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { FilterQuery } from "mongoose";
 import { Page } from "../interface/page.interface";
 import ISample from "../interface/sample.interface";
 import ResearcherModel from "../model/researcher.model";
@@ -37,6 +37,7 @@ export async function getSampleById({ sampleId }: GetSampleByIdParams) {
         sample,
     };
 }
+
 
 export async function createSample(researcherId: string, sampleData: ISample): Promise<ISample> {
     const researcher = await ResearcherModel.findById(researcherId);
@@ -328,3 +329,421 @@ export async function addParticipants({ sampleId, participants }: AddParticipant
 
     return true;
 }
+
+export async function loadInformationDashboard() {
+    try {
+        const result = await ResearcherModel.aggregate([
+            {
+                $facet: {
+                    gender_female: [
+                        {
+                            $unwind: "$researchSamples",
+                        },
+                        {
+                            $unwind: "$researchSamples.participants",
+                        },
+                        {
+                            $match: {
+                                "researchSamples.participants.personalData.gender": "Feminino",
+                            },
+                        },
+                        {
+                            $count: "count_female",
+                        },
+                    ],
+                    gender_male: [
+                        {
+                            $unwind: "$researchSamples",
+                        },
+                        {
+                            $unwind: "$researchSamples.participants",
+                        },
+                        {
+                            $match: {
+                                "researchSamples.participants.personalData.gender": "Masculino",
+                            },
+                        },
+                        {
+                            $count: "count_male",
+                        },
+                    ],
+                    instituition: [
+                        {
+                            $match: {
+                                "researchSamples.instituition": { $exists: true },
+                            },
+                        },
+                        {
+                            $unwind: "$researchSamples",
+                        },
+                        {
+                            $unwind: "$researchSamples.instituition",
+                        },
+                        {
+                            $group: {
+                                _id: null,
+                                total_unique_instituition: {
+                                    $addToSet: "$researchSamples.instituition.name",
+                                },
+                            },
+                        },
+                        {
+                            $project: {
+                                _id: 0,
+                                total_unique_instituition: {
+                                    $size: "$total_unique_instituition",
+                                },
+                            },
+                        },
+                    ],
+                    sample: [
+                        {
+                            $match: {
+                                "researchSamples.status": "Autorizado",
+                            },
+                        },
+                        {
+                            $unwind: "$researchSamples",
+                        },
+                        {
+                            $unwind: "$researchSamples.sampleTitle",
+                        },
+                        {
+                            $group: {
+                                _id: null,
+                                total_samples: {
+                                    $addToSet: "$researchSamples.sampleTitle",
+                                },
+                            },
+                        },
+                        {
+                            $project: {
+                                _id: 0,
+                                total_samples: {
+                                    $size: "$total_samples",
+                                },
+                            },
+                        },
+                    ],
+                    participants: [
+                        {
+                            $match: {
+                                "researchSamples.participants.personalData.fullName": { $exists: true },
+                            },
+                        },
+                        {
+                            $unwind: "$researchSamples",
+                        },
+                        {
+                            $unwind: "$researchSamples.participants",
+                        },
+                        {
+                            $count: "total_participants",
+                        },
+                    ],
+                },
+            },
+        ]);
+
+
+        if (!result || result.length === 0) {
+            throw new Error("An error occurred while loading information for the dashboard.");
+        }
+
+        const {
+            gender_female = [{}],
+            gender_male = [{}],
+            instituition = [{}],
+            sample = [{}],
+            participants = [{}]
+        } = result[0];
+
+        const count_female = gender_female.length > 0 ? gender_female[0].count_female : 0;
+        const count_male = gender_male.length > 0 ? gender_male[0].count_male : 0;
+        const total_unique_instituition = instituition.length > 0 ? instituition[0].total_unique_instituition : 0;
+        const total_samples = sample.length > 0 ? sample[0].total_samples : 0;
+        const total_participants = participants.length > 0 ? participants[0].total_participants : 0;
+
+        return {
+            count_female,
+            count_male,
+            total_unique_instituition,
+            total_samples,
+            total_participants
+        };
+
+
+    } catch (error) {
+        throw new Error("An error occurred while loading information for the dashboard.");
+    }
+}
+
+export async function loadanswerByGender() {
+    try {
+        const result = await ResearcherModel.aggregate([
+            {
+              $unwind: "$researchSamples"
+            },
+            {
+              $unwind: "$researchSamples.participants"
+            },
+            {
+              $unwind:
+                "$researchSamples.participants.adultForm"
+            },
+            {
+              $unwind:
+                "$researchSamples.participants.adultForm.answersByGroup"
+            },
+            {
+              $unwind:
+                "$researchSamples.participants.adultForm.answersByGroup.questions"
+            },
+            {
+              $facet: {
+                feminino: [
+                  {
+                    $match: {
+                      "researchSamples.participants.personalData.gender":
+                        "Feminino"
+                    }
+                  },
+                  {
+                    $match: {
+                      $or: [
+                        {
+                          "researchSamples.participants.adultForm.answersByGroup.questions.answer":
+                            "Frequentemente"
+                        },
+                        {
+                          "researchSamples.participants.adultForm.answersByGroup.questions.answer":
+                            "Sempre"
+                        },
+                        {
+                          "researchSamples.participants.adultForm.answersByGroup.questions.answer":
+                            "Ás vezes"
+                        },
+                        {
+                          "researchSamples.participants.adultForm.answersByGroup.questions.answer":
+                            "Raramente"
+                        },
+                        {
+                          "researchSamples.participants.adultForm.answersByGroup.questions.answer":
+                            "Nunca"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    $group: {
+                      _id: null,
+                      frequentemente: {
+                        $sum: {
+                          $cond: [
+                            {
+                              $eq: [
+                                "$researchSamples.participants.adultForm.answersByGroup.questions.answer",
+                                "Frequentemente"
+                              ]
+                            },
+                            1,
+                            0
+                          ]
+                        }
+                      },
+                      sempre: {
+                        $sum: {
+                          $cond: [
+                            {
+                              $eq: [
+                                "$researchSamples.participants.adultForm.answersByGroup.questions.answer",
+                                "Sempre"
+                              ]
+                            },
+                            1,
+                            0
+                          ]
+                        }
+                      },
+                      asVezes: {
+                        $sum: {
+                          $cond: [
+                            {
+                              $eq: [
+                                "$researchSamples.participants.adultForm.answersByGroup.questions.answer",
+                                "Ás vezes"
+                              ]
+                            },
+                            1,
+                            0
+                          ]
+                        }
+                      },
+                      raramente: {
+                        $sum: {
+                          $cond: [
+                            {
+                              $eq: [
+                                "$researchSamples.participants.adultForm.answersByGroup.questions.answer",
+                                "Raramente"
+                              ]
+                            },
+                            1,
+                            0
+                          ]
+                        }
+                      },
+                      nunca: {
+                        $sum: {
+                          $cond: [
+                            {
+                              $eq: [
+                                "$researchSamples.participants.adultForm.answersByGroup.questions.answer",
+                                "Nunca"
+                              ]
+                            },
+                            1,
+                            0
+                          ]
+                        }
+                      }
+                    }
+                  }
+                ],
+                masculino: [
+                  {
+                    $match: {
+                      "researchSamples.participants.personalData.gender":
+                        "Masculino"
+                    }
+                  },
+                  {
+                    $match: {
+                      $or: [
+                        {
+                          "researchSamples.participants.adultForm.answersByGroup.questions.answer":
+                            "Frequentemente"
+                        },
+                        {
+                          "researchSamples.participants.adultForm.answersByGroup.questions.answer":
+                            "Sempre"
+                        },
+                        {
+                          "researchSamples.participants.adultForm.answersByGroup.questions.answer":
+                            "Ás vezes"
+                        },
+                        {
+                          "researchSamples.participants.adultForm.answersByGroup.questions.answer":
+                            "Raramente"
+                        },
+                        {
+                          "researchSamples.participants.adultForm.answersByGroup.questions.answer":
+                            "Nunca"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    $group: {
+                      _id: null,
+                      frequentemente: {
+                        $sum: {
+                          $cond: [
+                            {
+                              $eq: [
+                                "$researchSamples.participants.adultForm.answersByGroup.questions.answer",
+                                "Frequentemente"
+                              ]
+                            },
+                            1,
+                            0
+                          ]
+                        }
+                      },
+                      sempre: {
+                        $sum: {
+                          $cond: [
+                            {
+                              $eq: [
+                                "$researchSamples.participants.adultForm.answersByGroup.questions.answer",
+                                "Sempre"
+                              ]
+                            },
+                            1,
+                            0
+                          ]
+                        }
+                      },
+                      asVezes: {
+                        $sum: {
+                          $cond: [
+                            {
+                              $eq: [
+                                "$researchSamples.participants.adultForm.answersByGroup.questions.answer",
+                                "Ás vezes"
+                              ]
+                            },
+                            1,
+                            0
+                          ]
+                        }
+                      },
+                      raramente: {
+                        $sum: {
+                          $cond: [
+                            {
+                              $eq: [
+                                "$researchSamples.participants.adultForm.answersByGroup.questions.answer",
+                                "Raramente"
+                              ]
+                            },
+                            1,
+                            0
+                          ]
+                        }
+                      },
+                      nunca: {
+                        $sum: {
+                          $cond: [
+                            {
+                              $eq: [
+                                "$researchSamples.participants.adultForm.answersByGroup.questions.answer",
+                                "Nunca"
+                              ]
+                            },
+                            1,
+                            0
+                          ]
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]);
+
+        if (!result || result.length === 0) {
+            throw new Error("An error occurred while loading Answer By Gender.");
+        }
+
+        const {
+            feminino = [],
+            masculino = []
+        } = result[0];
+
+        // Preencher com zeros se não houver resultados para feminino ou masculino
+        const femininoFilled = feminino.length === 0 ? [{ frequentemente: 0, sempre: 0, asVezes: 0, raramente: 0, nunca: 0 }] : feminino;
+        const masculinoFilled = masculino.length === 0 ? [{ frequentemente: 0, sempre: 0, asVezes: 0, raramente: 0, nunca: 0 }] : masculino;
+
+        return {
+            feminino: femininoFilled,
+            masculino: masculinoFilled
+        };
+
+    } catch (error) {
+        throw new Error("An error occurred while loading Answer By Gender.");
+    }
+}
+
+

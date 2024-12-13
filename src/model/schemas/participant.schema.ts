@@ -1,9 +1,8 @@
-import mongoose, { Schema, model } from "mongoose";
+import { Schema, model } from "mongoose";
 import { IParticipant } from "../../interface/participant.interface";
 import {
     DEVICES_ARRAY,
     EAdultFormGroup,
-    EAdultFormSteps,
     EDUCATION_LEVEL_ARRAY,
     GENDER_ARRAY,
     INCOME_LEVELS_ARRAY,
@@ -11,6 +10,7 @@ import {
 } from "../../util/consts";
 import { secondSourceSchema } from "./secondSource.schema";
 import { questionSchema } from "../adultForm/schemas/question.schema";
+import { evalueBioSchema } from "./evalueBio.schema";
 
 export const participantSchema = new Schema<IParticipant>(
     {
@@ -38,7 +38,6 @@ export const participantSchema = new Schema<IParticipant>(
             },
             occupation: {
                 type: String,
-                required: [true, "Participant occupation is required!"],
             },
             educationLevel: {
                 type: String,
@@ -49,6 +48,9 @@ export const participantSchema = new Schema<IParticipant>(
                 type: String,
                 enum: GENDER_ARRAY,
                 required: [true, "Participant gender is required!"],
+            },
+            age: {
+                type: Number,
             },
             birthDate: {
                 type: Date,
@@ -74,17 +76,18 @@ export const participantSchema = new Schema<IParticipant>(
                 required: [true, "Participant family month income is required!"],
             },
             houseDevices: {
-                type: Array,
-                of: String,
+                type: [String],
                 enum: DEVICES_ARRAY,
             },
             outsideHouseDevices: {
-                type: Array,
-                of: String,
+                type: [String],
                 enum: DEVICES_ARRAY,
             },
         },
         addressData: {
+            state: {
+                type: String,
+            },
             city: {
                 type: String,
                 required: [true, "Participant city is required!"],
@@ -104,6 +107,8 @@ export const participantSchema = new Schema<IParticipant>(
         },
         acceptTaleAt: Date,
         acceptTcleAt: Date,
+        giftdnessIndicatorsByResearcher: Boolean,
+        knowledgeAreasIndicatedByResearcher: [String],
         adultForm: {
             endFillFormAt: Date,
             startFillFormAt: Date,
@@ -122,6 +127,7 @@ export const participantSchema = new Schema<IParticipant>(
             text: String,
             videoUrl: String,
         },
+        evaluateAutobiography: [evalueBioSchema],
         secondSources: [secondSourceSchema],
     },
     {

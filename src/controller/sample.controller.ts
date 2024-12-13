@@ -11,6 +11,10 @@ import {
 } from "../dto/sample.dto";
 import { AddParticipantsDTO } from "../dto/sample/addParticipants.dto";
 import { GetSampleByIdDTO } from "../dto/sample/getSampleById.dto";
+import ResearcherModel from "../model/researcher.model";
+import { sampleRouter } from "../route/sample.route";
+import { loadInformationDashboard } from "../service/sample.service";
+
 
 export async function createSampleHandler(req: Request<{}, {}, CreateSampleDTO["body"], {}>, res: Response) {
     try {
@@ -203,4 +207,38 @@ export async function handlerGetSampleById(req: Request<GetSampleByIdDTO["params
         // TO DO errors handlers
         res.status(409).send(e.message);
     }
+}
+
+export async function loadDashboard (req: Request<{}, {}, {}, {}>, res: Response) {
+    try {
+        
+        const result = await SampleService.loadInformationDashboard();
+        // console.log(result)
+        res.status(200).json({ result });  
+
+        
+    } catch (e: any) {
+        console.error(e);
+
+        // TO DO errors handlers
+        res.status(409).send(e.message);
+    }
+
+}
+
+export async function answerByGender (req: Request<{}, {}, {}, {}>, res: Response) {
+    try {
+        
+        const result = await SampleService.loadanswerByGender();
+        // console.log(result)
+        res.status(200).json({ result });  
+
+        
+    } catch (e: any) {
+        console.error(e);
+
+        // TO DO errors handlers
+        res.status(409).send(e.message);
+    }
+
 }

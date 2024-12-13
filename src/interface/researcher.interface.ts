@@ -5,7 +5,7 @@ export default interface IResearcher {
     personalData: {
         fullName: string;
         phone: string;
-        profilePhoto?: string;
+        profilePhoto?: string;       
         birthDate: Date;
         countryState: string;
     };

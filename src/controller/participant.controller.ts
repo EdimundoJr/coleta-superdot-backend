@@ -7,12 +7,12 @@ import { SendValidationEmailDTO } from "../dto/participant/sendValidationEmail.d
 import { VerifyValidationCodeDTO } from "../dto/participant/verifyValidationCode.dto";
 import { ParticipantDataDTO } from "../dto/participant/participant.dto";
 import { AcceptAllSampleDocsDTO } from "../dto/participant/acceptDocs.dto";
-import { SaveAutobiographyDTO } from "../dto/participant/saveAutobiography.dto";
-import { SaveSecondSourcesDTO } from "../dto/participant/saveSecondSources.dto";
+import { SaveAutobiographyDTO, SaveEvalueAutobiographyDTO } from "../dto/participant/saveAutobiography.dto";
 import { ISecondSource } from "../interface/secondSource.interface";
-import { GetInfoDTO } from "../dto/participant/getInfo.dto";
+import { GetInfoBioDTO, GetInfoDTO } from "../dto/participant/getInfo.dto";
 import { getSampleById } from "../service/sample.service";
 import { finishForm } from "../service/adultForm.service";
+import { SaveSecondSourcesDTO } from "../dto/participant/saveSecondSources.dto";
 
 export async function handlerValidateEmailInSample(
     req: Request<SendValidationEmailDTO["params"], {}, SendValidationEmailDTO["body"], {}>,
@@ -220,6 +220,47 @@ export async function handlerSaveAutobiography(
     }
 }
 
+export async function handlerSaveEvalueAutobiography(
+    req: Request<SaveEvalueAutobiographyDTO["params"], {}, SaveEvalueAutobiographyDTO["body"], SaveEvalueAutobiographyDTO["query"]>,
+    res: Response
+) {
+
+    try {
+        const { sampleId, participantId } = req.params;       
+        const { idEvalueAutobiography, endEvalueAutobiography, markEvalueAutobiography, startEvalueAutobiography, textEvalueAutobiography, commentEvalueAutobiography , backgroundEvalueAutobiography } = req.body;
+               
+        if (!participantId) {
+            throw Error("Invalid participant JWT.");
+        }
+
+        const submitForm = req.query.submitForm === "true";       
+
+        const saved = await ParticipantService.saveEvalueAutobiography({
+            sampleId,
+            participantId,
+            idEvalueAutobiography,
+            textEvalueAutobiography,
+            commentEvalueAutobiography,
+            markEvalueAutobiography,
+            startEvalueAutobiography,
+            endEvalueAutobiography,
+            backgroundEvalueAutobiography,
+            submitForm,
+        });
+
+        if (!saved) {
+            throw Error("Cannot save this Evaluate Autobiography.");
+        }
+
+        res.status(200).json(true);
+    } catch (e: any) {
+        console.log(e);
+
+        // TO DO errors handlers
+        res.status(409).send(e.message);
+    }
+}
+
 export async function handlerGetParticipantInfo(req: Request<GetInfoDTO["params"], {}, {}, {}>, res: Response) {
     try {
         const { sampleId } = req.params;
@@ -240,6 +281,27 @@ export async function handlerGetParticipantInfo(req: Request<GetInfoDTO["params"
     } catch (e: any) {
         console.log(e);
 
+        // TO DO errors handlers
+        res.status(409).send(e.message);
+    }
+}
+export async function handlerGetParticipantInfoBio(req: Request<GetInfoBioDTO["params"], {}, {}, {}>, res: Response) {
+    try {
+        const { sampleId, participantId } = req.params;
+               
+       
+        if (!participantId) {
+            throw Error("Invalid participant JWT.");
+        }
+
+        const participantData = await ParticipantService.getParticipantDataById({
+            sampleId,
+            participantId,
+        });        
+
+        res.status(200).json(participantData);
+    } catch (e: any) {
+        console.log(e);
         // TO DO errors handlers
         res.status(409).send(e.message);
     }

@@ -34,6 +34,9 @@ interface FindParticipantByIdParams {
 }
 
 export function findParticipantById({ sample, participantId }: FindParticipantByIdParams) {
+    console.log("aqui 2")
+    console.log(participantId)
+
     if (!mongoose.Types.ObjectId.isValid(participantId)) {
         throw new Error("Participant id is invalid!");
     }
@@ -299,6 +302,63 @@ export async function saveAutobiography({
 
     return true;
 }
+
+interface evaluateAutobiographyParams {
+    sampleId: string;
+    participantId: string;
+    idEvalueAutobiography?: number;
+    textEvalueAutobiography?: string;
+    commentEvalueAutobiography?: string;
+    markEvalueAutobiography?: string;
+    startEvalueAutobiography?: number;
+    endEvalueAutobiography?: number;
+    backgroundEvalueAutobiography?: string,
+    submitForm?: boolean
+};
+
+export async function saveEvalueAutobiography({
+    sampleId,
+    participantId,
+    idEvalueAutobiography,
+    textEvalueAutobiography,
+    commentEvalueAutobiography,
+    markEvalueAutobiography,
+    startEvalueAutobiography,
+    endEvalueAutobiography,
+    backgroundEvalueAutobiography,
+    submitForm,
+}: evaluateAutobiographyParams) {
+
+
+
+    await ResearcherModel.findOneAndUpdate(
+        { "researchSamples._id": sampleId, "researchSamples.participants._id": participantId },
+        {
+            $push: {
+                "researchSamples.$[sam].participants.$[part].evaluateAutobiography": {
+                    id: idEvalueAutobiography,
+                    text: textEvalueAutobiography,
+                    comment: commentEvalueAutobiography,
+                    mark: markEvalueAutobiography,
+                    start: startEvalueAutobiography,
+                    end: endEvalueAutobiography,
+                    background: backgroundEvalueAutobiography,
+                }
+
+            },
+        },
+
+        {
+            arrayFilters: [{ "sam._id": sampleId }, { "part._id": participantId }],
+        }
+    );
+
+    return true; 
+
+
+}
+
+
 
 interface GetParticipantDataByIdParams {
     sampleId: string;

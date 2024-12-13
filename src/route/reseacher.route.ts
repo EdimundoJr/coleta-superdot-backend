@@ -16,6 +16,13 @@ researcherRouter.put(
 );
 
 researcherRouter.get(
+    "/get-researcher",    
+    //falta validador
+    ResearcherController.researcherBody
+);
+
+
+researcherRouter.get(
     "/paginate/:itemsPerPage/page/:currentPage",
     [validateDTO(paginateResearcherDTO), requireRole("Administrador")],
     ResearcherController.paginateResearchers

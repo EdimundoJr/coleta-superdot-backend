@@ -77,4 +77,14 @@ sampleRouter.get(
     SampleController.handlerGetSampleById
 );
 
+sampleRouter.get(
+    "/load-Information-deashboard",
+    SampleController.loadDashboard
+)
+
+sampleRouter.get(
+    "/answer-by-gender",
+    SampleController.answerByGender
+)
+
 export { sampleRouter };

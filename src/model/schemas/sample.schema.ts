@@ -14,6 +14,7 @@ import {
     SAMPLE_STATUS_ARRAY,
 } from "../../util/consts";
 import { questionSchema } from "../adultForm/schemas/question.schema";
+import { evalueBioSchema } from "./evalueBio.schema";
 
 export const sampleSchema = new Schema<ISample>(
     {
@@ -102,6 +103,7 @@ export const sampleSchema = new Schema<ISample>(
                         type: String,
                         enum: GENDER_ARRAY,
                     },
+                    age: Number,
                     birthDate: Date,
                 },
                 familyData: {
@@ -124,6 +126,7 @@ export const sampleSchema = new Schema<ISample>(
                     },
                 },
                 addressData: {
+                    state: String,
                     city: String,
                     district: String,
                     street: String,
@@ -135,7 +138,11 @@ export const sampleSchema = new Schema<ISample>(
                 },
                 acceptTaleAt: Date,
                 acceptTcleAt: Date,
-                giftdnessIndicators: Boolean,
+                giftdnessIndicatorsByResearcher: Boolean,
+                knowledgeAreasIndicatedByResearcher: {
+                    type: Array,
+                    of: String,
+                },
                 adultForm: {
                     endFillFormAt: Date,
                     startFillFormAt: Date,
@@ -160,6 +167,7 @@ export const sampleSchema = new Schema<ISample>(
                     text: String,
                     videoUrl: String,
                 },
+                evaluateAutobiography: [evalueBioSchema],
                 secondSources: [
                     {
                         personalData: {
@@ -169,6 +177,7 @@ export const sampleSchema = new Schema<ISample>(
                                 trim: true,
                                 lowercase: true,
                             },
+                            age: Number,
                             birthDate: Date,
                             relationship: {
                                 type: String,

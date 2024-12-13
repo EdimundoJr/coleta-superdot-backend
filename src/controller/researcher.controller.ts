@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import * as ResearcherService from "../service/researcher.service";
 import { hashContent } from "../util/hash";
 import IResearcher from "../interface/researcher.interface";
-import { PaginateResearcherDTO, UpdateResearcherDTO, paginateResearcherParams } from "../dto/researcher.dto";
+import { PaginateResearcherDTO,  UpdateResearcherDTO, paginateResearcherParams } from "../dto/researcher.dto";
 import { GetResearcherNameBySampleIdDTO } from "../dto/researcher/getResearcherNameBySampleId.dto";
 import { GetResearchDataBySampleIdAndParticipantIdDTO } from "../dto/researcher/getResearchDataBySampleIdAndParticipantId.dto";
 
@@ -32,6 +32,38 @@ export async function updateResearcherHandler(req: Request<{}, {}, UpdateResearc
         res.status(409).send(e.message);
     }
 }
+
+
+export const researcherBody = async (req: Request<{}, {}, {}, {}>, res: Response) => {
+    try {
+        
+        const researcherId = res.locals.researcherId;
+
+        if (!researcherId) {
+            throw new Error("Invalid session!");
+        }
+
+        const researcher = await ResearcherService.findResearcher({ _id: researcherId });
+        // console.log("Corpo da requisição:", researcher.personalData); 
+        if (!researcher) {
+            throw new Error("Researcher not found!");
+        }
+        const responseData = {
+            researcher: researcher.personalData,
+            role: researcher.role
+        };
+
+        // Enviamos o objeto como resposta
+        res.status(200).json(responseData);
+    
+    } catch (e: any) {
+        console.error(e);
+
+        // TO DO errors handlers
+        res.status(409).send(e.message);
+    }
+};
+
 
 export async function paginateResearchers(
     req: Request<PaginateResearcherDTO["params"], {}, {}, PaginateResearcherDTO["query"]>,

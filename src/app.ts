@@ -40,9 +40,9 @@ app.use("/api/participant", participantRouter);
 
 app.use("/api/second-source", secondSourceRouter);
 
-app.use((req, res, next) => {
-    next(createHttpError(404, "Endpoint not found"));
-});
+// app.use((req, res, next) => {
+//     next(createHttpError(404, "Endpoint not found"));
+// });
 
 app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
     console.error(error);

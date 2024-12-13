@@ -77,7 +77,7 @@ export async function userRoleHandler(req: Request<UserRoleDTO["params"], {}, {}
         const { userId } = req.params;
         const role = await ResearcherService.getResearcherRole(userId);
 
-        console.log(role);
+        // console.log(role);
         res.status(200).send(role);
     } catch (e) {
         console.error(e);
