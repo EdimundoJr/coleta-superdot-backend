@@ -23,7 +23,9 @@ app.use(morgan("dev"));
 
 app.use(deserializeResearcherJWT);
 app.use(deserializeParticipantJWT);
-
+app.get("/", (req, res) => {
+    res.send("API está online!");
+});
 app.use("/api/auth", authRouter);
 
 app.use("/api/researcher", researcherRouter);
