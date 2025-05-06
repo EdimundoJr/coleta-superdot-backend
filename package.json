@@ -4,9 +4,10 @@
   "description": "",
   "main": "build/server.js",
   "scripts": {
-    "start": "nodemon -r dotenv/config src/server.ts",
+    "dev": "nodemon -r dotenv/config src/server.ts",
     "test": "mocha --exit",
-    "build": "tsc"
+    "build": "tsc",
+    "start": "node build/server.js "
   },
   "author": "",
   "license": "ISC",
