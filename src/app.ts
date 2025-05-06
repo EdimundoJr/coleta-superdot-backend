@@ -15,17 +15,28 @@ import { secondSourceRouter } from "./route/secondSource.route";
 
 const app = express();
 
-app.use(express.json());
-
-app.use(cors());
 
 app.use(morgan("dev"));
 
+app.use(cors({
+    origin: [
+        "https://coleta-superdot-frontend.vercel.app", // Frontend na Vercel
+        "http://localhost:3001",
+
+    ],
+    credentials: true
+}));
+
+app.use(express.json());
+
+
 app.use(deserializeResearcherJWT);
 app.use(deserializeParticipantJWT);
+
 app.get("/", (req, res) => {
     res.send("API está online!");
 });
+
 app.use("/api/auth", authRouter);
 
 app.use("/api/researcher", researcherRouter);
@@ -55,7 +66,10 @@ app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
         statusCode = error.status;
     }
 
-    res.status(statusCode).json({ error: errorMessage });
+    res.status(statusCode).json({
+        error: errorMessage,
+        ...(process.env.NODE_ENV === "development" && { stack: error })
+    });
 });
 
 export default app;
