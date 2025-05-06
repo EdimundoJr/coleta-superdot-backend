@@ -57,6 +57,10 @@ app.use((req, res, next) => {
     next(createHttpError(404, "Endpoint not found"));
 });
 
+app.get("/health", (req, res) => {
+    res.status(200).json({ status: "OK", timestamp: new Date() });
+});
+
 app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
     console.error(error);
     let errorMessage = "unknown error";
