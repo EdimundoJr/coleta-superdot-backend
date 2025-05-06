@@ -4,10 +4,10 @@
   "description": "",
   "main": "build/server.js",
   "scripts": {
-    "dev": "nodemon -r dotenv/config src/server.ts",
-    "test": "mocha --exit",
+    "dev": "ts-node-dev src/server.ts",
     "build": "tsc",
-    "start": "node -r dotenv/config build/server.js"
+    "start": "node -r dotenv/config build/server.js",
+    "vercel-build": "npm run build && npm prune --production"
   },
   "author": "",
   "license": "ISC",

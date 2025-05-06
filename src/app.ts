@@ -20,7 +20,7 @@ app.use(morgan("dev"));
 
 app.use(cors({
     origin: [
-        "https://coleta-superdot-frontend.vercel.app", // Frontend na Vercel
+        "https://coleta-superdot-frontend.vercel.app",
         "http://localhost:3001",
 
     ],
@@ -57,9 +57,6 @@ app.use((req, res, next) => {
     next(createHttpError(404, "Endpoint not found"));
 });
 
-app.get("/health", (req, res) => {
-    res.status(200).json({ status: "OK", timestamp: new Date() });
-});
 
 app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
     console.error(error);
