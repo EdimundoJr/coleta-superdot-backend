@@ -1,4 +1,4 @@
-import { object, string, z } from "zod";
+import { object, optional, string, z } from "zod";
 import validator from "validator";
 import { DateTime } from "luxon";
 import { EDUCATION_LEVEL_ARRAY, RELATIONSHIPS_ARRAY, RELATIONSHIP_TIME_ARRAY } from "../../util/consts";
@@ -21,7 +21,7 @@ const secondSourcePersonalDataBody = object({
         relationship: z.enum(RELATIONSHIPS_ARRAY, { required_error: "The relationship is required!" }),
         relationshipTime: z.enum(RELATIONSHIP_TIME_ARRAY, { required_error: "The relationship time is required!" }),
         job: string({ required_error: "Job is required" }),
-        occupation: string({ required_error: "Occupation is required" }),
+        occupation: optional(string()),
         street: string({ required_error: "Street is required" }),
         district: string({ required_error: "District is required" }),
         countryCity: string({ required_error: "City is required" }),

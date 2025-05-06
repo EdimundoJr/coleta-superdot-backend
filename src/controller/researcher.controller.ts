@@ -98,3 +98,30 @@ export async function handlerGetReseachDataBySampleIdAndParticipantId(
         res.status(409).send(e);
     }
 }
+
+export const researcherBody = async (req: Request<{}, {}, {}, {}>, res: Response) => {
+    try {
+
+        const researcherId = res.locals.researcherId;
+
+        if (!researcherId) {
+            throw new Error("Invalid session!");
+        }
+
+        const researcher = await ResearcherService.findResearcher({ _id: researcherId });
+        if (!researcher) {
+            throw new Error("Researcher not found!");
+        }
+        const responseData = {
+            researcher: researcher.personalData,
+            role: researcher.role
+        };
+
+        res.status(200).json(responseData);
+
+    } catch (e: any) {
+        console.error(e);
+
+        res.status(409).send(e.message);
+    }
+};

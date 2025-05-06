@@ -34,6 +34,7 @@ interface FindParticipantByIdParams {
 }
 
 export function findParticipantById({ sample, participantId }: FindParticipantByIdParams) {
+
     if (!mongoose.Types.ObjectId.isValid(participantId)) {
         throw new Error("Participant id is invalid!");
     }
@@ -300,6 +301,53 @@ export async function saveAutobiography({
     return true;
 }
 
+interface evaluateAutobiographyParams {
+    sampleId: string;
+    participantId: string;
+    idEvalueAutobiography?: number;
+    textEvalueAutobiography?: string;
+    commentEvalueAutobiography?: string;
+    markEvalueAutobiography?: string;
+    startEvalueAutobiography?: number;
+    endEvalueAutobiography?: number;
+    backgroundEvalueAutobiography?: string,
+    submitForm?: boolean
+};
+
+export async function saveEvalueAutobiography({
+    sampleId,
+    participantId,
+    idEvalueAutobiography,
+    textEvalueAutobiography,
+    commentEvalueAutobiography,
+    markEvalueAutobiography,
+    startEvalueAutobiography,
+    endEvalueAutobiography,
+    backgroundEvalueAutobiography,
+    submitForm,
+}: evaluateAutobiographyParams) {
+    await ResearcherModel.findOneAndUpdate(
+        { "researchSamples._id": sampleId, "researchSamples.participants._id": participantId },
+        {
+            $push: {
+                "researchSamples.$[sam].participants.$[part].evaluateAutobiography": {
+                    id: idEvalueAutobiography,
+                    text: textEvalueAutobiography,
+                    comment: commentEvalueAutobiography,
+                    mark: markEvalueAutobiography,
+                    start: startEvalueAutobiography,
+                    end: endEvalueAutobiography,
+                    background: backgroundEvalueAutobiography,
+                }
+            },
+        },
+        {
+            arrayFilters: [{ "sam._id": sampleId }, { "part._id": participantId }],
+        }
+    );
+
+    return true;
+}
 interface GetParticipantDataByIdParams {
     sampleId: string;
     participantId: string;
@@ -311,3 +359,112 @@ export async function getParticipantDataById({ sampleId, participantId }: GetPar
 
     return omit(participant, "verification");
 }
+
+interface GiftdnessIndicatorsParams {
+    sampleId: string;
+    participantId: string;
+    giftdnessIndicatorsByResearcher: boolean;
+    submitForm?: boolean;
+};
+
+export async function updateGiftdnessIndicators({
+    sampleId,
+    participantId,
+    giftdnessIndicatorsByResearcher,
+    submitForm,
+}: GiftdnessIndicatorsParams) {
+    try {
+        await ResearcherModel.findOneAndUpdate(
+            { "researchSamples._id": sampleId, "researchSamples.participants._id": participantId },
+            {
+                $set: {
+                    "researchSamples.$[sam].participants.$[part].giftdnessIndicatorsByResearcher": giftdnessIndicatorsByResearcher
+                }
+            },
+            {
+                arrayFilters: [{ "sam._id": sampleId }, { "part._id": participantId }],
+            }
+        );
+        return true;
+    } catch (e) {
+        console.error("Erro ao atualizar indicadores de giftdness:", e);
+        throw new Error("Erro ao atualizar indicadores de giftdness");
+    }
+}
+
+
+export async function updateResearcher({
+    sampleId,
+    participantId,
+    giftdnessIndicatorsByResearcher,
+    submitForm,
+}: GiftdnessIndicatorsParams) {
+    try {
+        await ResearcherModel.findOneAndUpdate(
+            { "researchSamples._id": sampleId, "researchSamples.participants._id": participantId },
+            {
+                $set: {
+                    "researchSamples.$[sam].participants.$[part].giftdnessIndicatorsByResearcher": giftdnessIndicatorsByResearcher
+                }
+            },
+            {
+                arrayFilters: [{ "sam._id": sampleId }, { "part._id": participantId }],
+            }
+        );
+        return true;
+    } catch (e) {
+        console.error("Erro ao atualizar indicadores de giftdness:", e);
+        throw new Error("Erro ao atualizar indicadores de giftdness");
+    }
+}
+
+interface KnowledgeAreasParams {
+    sampleId: string;
+    participantId: string;
+    knowledgeAreasIndicatedByResearcher: {
+        general?: string[];
+        specific?: string[];
+    };
+    submitForm?: boolean;
+}
+
+export async function updateKnowledgeAreas({
+    sampleId,
+    participantId,
+    knowledgeAreasIndicatedByResearcher,
+    submitForm,
+}: KnowledgeAreasParams) {
+    try {
+        const updateFields: any = {};
+
+        if (knowledgeAreasIndicatedByResearcher.general && knowledgeAreasIndicatedByResearcher.general.length > 0) {
+            updateFields["researchSamples.$[sam].participants.$[part].knowledgeAreasIndicatedByResearcher.general"] =
+                knowledgeAreasIndicatedByResearcher.general;
+        }
+
+        if (knowledgeAreasIndicatedByResearcher.specific && knowledgeAreasIndicatedByResearcher.specific.length > 0) {
+            updateFields["researchSamples.$[sam].participants.$[part].knowledgeAreasIndicatedByResearcher.specific"] =
+                knowledgeAreasIndicatedByResearcher.specific;
+        }
+
+        if (Object.keys(updateFields).length > 0) {
+            await ResearcherModel.findOneAndUpdate(
+                { "researchSamples._id": sampleId, "researchSamples.participants._id": participantId },
+                { $set: updateFields },
+                {
+                    arrayFilters: [{ "sam._id": sampleId }, { "part._id": participantId }],
+                }
+            );
+        }
+
+        if (submitForm) {
+            console.log("Formulário enviado com sucesso!");
+        }
+
+        return true;
+    } catch (e) {
+        console.error("Erro ao atualizar áreas de conhecimento:", e);
+        throw new Error("Erro ao atualizar áreas de conhecimento");
+    }
+}
+

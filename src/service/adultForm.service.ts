@@ -198,7 +198,10 @@ export function verifyParticipantGiftednessIndicators({ participant }: VerifyPar
         MIN_PERCENTAGE_TO_HAVE_GIFTEDNESS_INDICATORS * MAX_ADULT_FORM_FIRST_SOURCE_PUNCTUATION;
 
     const participantPunctuation = participant.adultForm?.totalPunctuation ?? 0;
+    console.log("Pontuação do participante:", participantPunctuation);
+
     if (participantPunctuation < minFirstSourcePunctuation) {
+        console.log("Pontuação do participante menor que o mínimo necessário.");
         return false;
     }
 
@@ -207,7 +210,10 @@ export function verifyParticipantGiftednessIndicators({ participant }: VerifyPar
 
     return participant.secondSources?.every((secSource) => {
         const secSourcePunctuation = secSource.adultForm?.totalPunctuation ?? 0;
+        console.log("Pontuação da segunda fonte:", secSourcePunctuation);
+
         if (secSourcePunctuation < minSecSourcePunctuation) {
+            console.log("Pontuação do participante segunda fonte menor que o mínimo necessário.");
             return false;
         }
 
