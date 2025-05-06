@@ -1,15 +1,16 @@
 import * as path from "path";
 import multer from "multer";
 
-const uploadFilePath = path.resolve(__dirname, "../", "storage/uploads/");
+// const uploadFilePath = path.resolve(__dirname, "../", "storage/uploads/");
 
-const storage = multer.diskStorage({
-    destination: uploadFilePath,
-    filename: function (req, file, cb) {
-        const uniquePreffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-        cb(null, uniquePreffix + path.extname(file.originalname));
-    },
-});
+// const storage = multer.diskStorage({
+//     destination: uploadFilePath,
+//     filename: function (req, file, cb) {
+//         const uniquePreffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+//         cb(null, uniquePreffix + path.extname(file.originalname));
+//     },
+// });
+const storage = multer.memoryStorage();
 
 export const uploaderConfig = multer({
     storage: storage,
