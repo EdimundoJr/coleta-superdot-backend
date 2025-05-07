@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
     /* Configuração Principal */
+    "types": [
+      "node",
+      "dotenv"
+    ],
     "target": "ES2020",
     "module": "NodeNext",
     "rootDir": "./src",
