@@ -18,14 +18,7 @@ const app = express();
 
 app.use(morgan("dev"));
 
-app.use(cors({
-    origin: [
-        "https://coleta-superdot-frontend.vercel.app",
-        "http://localhost:3001",
-
-    ],
-    credentials: true
-}));
+app.use(cors());
 
 app.use(express.json());
 
