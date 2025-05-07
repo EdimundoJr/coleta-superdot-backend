@@ -18,27 +18,23 @@ const app = express();
 
 app.use(morgan("dev"));
 
-app.use(
-    cors({
-        origin: (origin, callback) => {
-            const allowedOrigins = [
-                process.env.FRONT_END_URL,
-                "http://localhost:3000"
-            ];
+const allowedOrigins = [
+    process.env.FRONT_END_URL,
+    "http://localhost:5173"
+];
 
-            if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                callback(new Error("Origin not allowed by CORS"));
-            }
-        },
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        allowedHeaders: ["Content-Type", "Authorization"],
-        credentials: true
-    })
-);
 
-// Resto do seu código...
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true
+}));
+
 
 app.use(express.json());
 
