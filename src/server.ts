@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 import mongoose from "mongoose";
 import env from "./util/validateEnv";
 import app from "./app";
