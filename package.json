@@ -7,7 +7,7 @@
     "dev": "nodemon -r dotenv/config src/server.ts",
     "test": "mocha --exit",
     "build": "tsc",
-    "start": "node -r dotenv/config build/server.js"
+    "start": "node build/server.js"
   },
   "author": "",
   "license": "ISC",
@@ -58,6 +58,7 @@
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.4",
     "pug": "^3.0.2",
+    "serverless-http": "^3.2.0",
     "superagent": "^10.2.1",
     "type-fest": "^4.3.3",
     "validator": "^13.9.0",
