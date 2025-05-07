@@ -1,6 +1,10 @@
 {
-    "extension": ["ts"],
+    "extension": [
+        "ts"
+    ],
     "spec": "src/**/*.spec.ts",
-    "require": ["ts-node/register", "dotenv/config", "src/test/hooks.ts"],
+    "require": [
+        "ts-node/register"
+    ],
     "reporter": "nyan"
 }
