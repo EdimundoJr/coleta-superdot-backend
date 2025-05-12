@@ -7,8 +7,7 @@ import { RolesType, SampleStatus } from "./consts";
 const templatesPath = path.resolve(__dirname, "../", "storage/emailTemplates/");
 
 const transport = nodemailer.createTransport({
-    host: env.EMAIL_HOST,
-    port: env.EMAIL_PORT,
+    service: "gmail",
     //secure: true, // use TLS
     auth: {
         user: env.EMAIL_USER,

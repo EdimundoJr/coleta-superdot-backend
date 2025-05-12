@@ -26,8 +26,7 @@ export default cleanEnv(process.env, {
     }),
 
     // Variáveis de e-mail (opcionais - usar devDefault localmente)
-    EMAIL_HOST: str({ default: "" }),
-    EMAIL_PORT: num({ default: 0 }),
+
     EMAIL_USER: str({ default: "" }),
     EMAIL_PASS: str({ default: "" })
 });
