@@ -20,7 +20,7 @@ const email = new Email({
         root: templatesPath,
     },
     message: {
-        from: "Superdot Coleta - no-reply@superdot.com.br",
+        from: `Superdot Coleta - <${env.EMAIL_USER}>`,
     },
     transport,
 });
