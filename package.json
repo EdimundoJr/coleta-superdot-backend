@@ -5,6 +5,7 @@
   "main": "build/server.js",
   "scripts": {
     "build": "npm install --include=dev && tsc",
+    "postbuild": "copyfiles -u 1 \"src/storage/emailTemplates/**/*\" build/storage/emailTemplates",
     "start": "node build/server.js",
     "dev": "nodemon --require dotenv/config src/server.ts",
     "test": "mocha --exit"
@@ -31,6 +32,7 @@
     "@types/supertest": "^2.0.12",
     "@types/validator": "^13.7.17",
     "chai": "^4.3.7",
+    "copyfiles": "^2.4.1",
     "dotenv": "^16.5.0",
     "luxon": "^3.3.0",
     "mocha": "^10.2.0",
