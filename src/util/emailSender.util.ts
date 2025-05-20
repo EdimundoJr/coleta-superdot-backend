@@ -4,17 +4,7 @@ import Email from "email-templates";
 import * as path from "path";
 import { RolesType, SampleStatus } from "./consts";
 
-const __dirname = path.dirname(__filename);
-
-const templatesPath = path.resolve(
-    __dirname,
-    "..",
-    "..",
-    "storage",
-    "emailTemplates"
-);
-
-console.log("Caminho dos templates:", templatesPath);
+const templatesPath = path.resolve(__dirname, "../", "storage/emailTemplates/");
 
 const transport = nodemailer.createTransport({
     service: "gmail",
