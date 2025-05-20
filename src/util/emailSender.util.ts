@@ -37,7 +37,7 @@ interface EmailReviewRequest {
     researcherEmail: string;
     sampleName: string;
     sampleStatus: SampleStatus;
-    quantityParticipantsAuthorized?: number;
+    qttParticipantsAuthorized?: number;
     reviewerFullName: string;
     reviewerEmail: string;
     reviewDate: string;
@@ -51,7 +51,7 @@ export const dispatchReviewRequestEmail = async (requestBody: EmailReviewRequest
                 researcherName: requestBody.researcherName,
                 sampleName: requestBody.sampleName,
                 sampleStatus: requestBody.sampleStatus,
-                quantityParticipantsAuthorized: requestBody.quantityParticipantsAuthorized,
+                qttParticipantsAuthorized: requestBody.qttParticipantsAuthorized,
                 reviewerFullName: requestBody.reviewerFullName,
                 reviewerEmail: requestBody.reviewerEmail,
                 reviewDate: requestBody.reviewDate,
@@ -73,7 +73,7 @@ export const dispatchReviewRequestEmail = async (requestBody: EmailReviewRequest
                 researcherName: requestBody.researcherName,
                 sampleName: requestBody.sampleName,
                 sampleStatus: requestBody.sampleStatus,
-                quantityParticipantsAuthorized: requestBody.quantityParticipantsAuthorized,
+                qttParticipantsAuthorized: requestBody.qttParticipantsAuthorized,
                 reviewerFullName: requestBody.reviewerFullName,
                 reviewerEmail: requestBody.reviewerEmail,
                 reviewDate: requestBody.reviewDate,
