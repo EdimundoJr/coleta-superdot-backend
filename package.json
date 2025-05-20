@@ -7,7 +7,7 @@
     "build": "tsc",
     "postbuild": "copyfiles -u 1 \"src/storage/emailTemplates/**/*\" build/storage/emailTemplates",
     "start": "node build/server.js",
-    "dev": "nodemon --require dotenv/config src/server.ts",
+    "dev": "nodemon --require dotenv/config src/server.ts"
   },
   "author": "",
   "license": "ISC",
