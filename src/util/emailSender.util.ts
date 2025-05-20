@@ -4,7 +4,9 @@ import Email from "email-templates";
 import * as path from "path";
 import { RolesType, SampleStatus } from "./consts";
 
-const templatesPath = path.resolve(__dirname, "../", "storage/emailTemplates/");
+const templatesPath = path.join(__dirname, "../../storage/emailTemplates");
+
+console.log("Caminho dos templates:", templatesPath);
 
 const transport = nodemailer.createTransport({
     service: "gmail",
@@ -46,46 +48,35 @@ interface EmailReviewRequest {
 
 export const dispatchReviewRequestEmail = async (requestBody: EmailReviewRequest): Promise<void> => {
     try {
-        const renderedTemplate = await email.render("reviewRequestSample/html", {
-            locals: {
-                researcherName: requestBody.researcherName,
-                sampleName: requestBody.sampleName,
-                sampleStatus: requestBody.sampleStatus,
-                qttParticipantsAuthorized: requestBody.qttParticipantsAuthorized,
-                reviewerFullName: requestBody.reviewerFullName,
-                reviewerEmail: requestBody.reviewerEmail,
-                reviewDate: requestBody.reviewDate,
-                reviewerMessage: requestBody.reviewerMessage,
-                systemURL: env.FRONT_END_URL,
-            },
-        });
+        const templateDir = path.join(templatesPath, "reviewRequestSample");
+        console.log("Verificando diretório do template:", templateDir);
 
-        console.log("Template renderizado com sucesso:", renderedTemplate);
+        const textFallback = `Prezado(a) ${requestBody.researcherName},\n\nSua amostra "${requestBody.sampleName}" foi revisada.\nStatus: ${requestBody.sampleStatus}\n\nMensagem: ${requestBody.reviewerMessage}\n\nAcesse: ${env.FRONT_END_URL}`;
 
-        const sendResult = await email.send({
+        let htmlContent;
+        try {
+            htmlContent = await email.render("reviewRequestSample/html", {
+                locals: { ...requestBody, systemURL: env.FRONT_END_URL }
+            });
+        } catch (renderError) {
+            console.warn("Falha ao renderizar template HTML, usando fallback:", renderError);
+            htmlContent = `<p>${textFallback.replace(/\n/g, '<br>')}</p>`;
+        }
+
+        await email.send({
             template: "reviewRequestSample",
             message: {
                 to: requestBody.researcherEmail,
-                subject: "A sua solicitação de amostra foi revisada!",
-                text: `Prezado(a) ${requestBody.researcherName},\n\nSua amostra "${requestBody.sampleName}" foi revisada com o status: ${requestBody.sampleStatus}.\n\nMensagem do revisor: ${requestBody.reviewerMessage}\n\nAcesse o sistema: ${env.FRONT_END_URL}`,
+                subject: "Sua solicitação de amostra foi revisada!",
+                text: textFallback,
+                html: htmlContent
             },
-            locals: {
-                researcherName: requestBody.researcherName,
-                sampleName: requestBody.sampleName,
-                sampleStatus: requestBody.sampleStatus,
-                qttParticipantsAuthorized: requestBody.qttParticipantsAuthorized,
-                reviewerFullName: requestBody.reviewerFullName,
-                reviewerEmail: requestBody.reviewerEmail,
-                reviewDate: requestBody.reviewDate,
-                reviewerMessage: requestBody.reviewerMessage,
-                systemURL: env.FRONT_END_URL,
-            },
+            locals: { ...requestBody, systemURL: env.FRONT_END_URL }
         });
 
-        console.log("E-mail enviado com sucesso:", sendResult);
     } catch (error) {
-        console.error("Falha ao enviar e-mail:", error);
-        throw new Error(`Erro no envio de e-mail: ${error instanceof Error ? error.message : String(error)}`);
+        console.error("Falha no processo de envio:", error);
+
     }
 };
 

@@ -5,7 +5,7 @@
   "main": "build/server.js",
   "scripts": {
     "build": "npm install --include=dev && tsc",
-    "postbuild": "copyfiles -u 1 \"src/storage/emailTemplates/**/*\" build/storage/emailTemplates",
+    "postbuild": "node -e \"require('fs').cpSync('src/storage/emailTemplates', 'build/storage/emailTemplates', {recursive: true, force: true})\"",
     "start": "node build/server.js",
     "dev": "nodemon --require dotenv/config src/server.ts"
   },
