@@ -8,7 +8,6 @@ const templatesPath = path.resolve(__dirname, "../", "storage/emailTemplates/");
 
 const transport = nodemailer.createTransport({
     service: "gmail",
-    //secure: true, // use TLS
     auth: {
         user: env.EMAIL_USER,
         pass: env.EMAIL_PASS,
@@ -18,6 +17,9 @@ const transport = nodemailer.createTransport({
 const email = new Email({
     views: {
         root: templatesPath,
+        options: {
+            extension: "pug",
+        },
     },
     message: {
         from: `Superdot Coleta - <${env.EMAIL_USER}>`,
