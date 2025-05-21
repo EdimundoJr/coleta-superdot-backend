@@ -5,11 +5,12 @@ import * as path from "path";
 import { RolesType, SampleStatus } from "./consts";
 import fs from "fs";
 
-const templatesPath = path.resolve(__dirname, "../../storage/emailTemplates");
+const templatesPath = path.join(__dirname, "../storage/emailTemplates");
 
 
 console.log("🔍 __dirname real:", __dirname);
-console.log("📁 Resolvendo para:", path.resolve(__dirname, "../../storage/emailTemplates"));
+console.log("📁 Resolvendo para:", templatesPath);
+console.log("📦 Existe?", fs.existsSync(templatesPath));
 
 if (!fs.existsSync(templatesPath)) {
     console.error("❌ Template path not found:", templatesPath);
