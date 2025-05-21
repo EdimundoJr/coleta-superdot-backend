@@ -7,6 +7,10 @@ import fs from "fs";
 
 const templatesPath = path.resolve(__dirname, "../../storage/emailTemplates");
 
+
+console.log("🔍 __dirname real:", __dirname);
+console.log("📁 Resolvendo para:", path.resolve(__dirname, "../../storage/emailTemplates"));
+
 if (!fs.existsSync(templatesPath)) {
     console.error("❌ Template path not found:", templatesPath);
 } else {
