@@ -3,10 +3,15 @@ import env from "./validateEnv";
 import Email from "email-templates";
 import * as path from "path";
 import { RolesType, SampleStatus } from "./consts";
+import fs from "fs";
 
-const templatesPath = path.join(__dirname, "../../storage/emailTemplates");
+const templatesPath = path.resolve(__dirname, "../../storage/emailTemplates");
 
-console.log("Caminho dos templates:", templatesPath);
+if (!fs.existsSync(templatesPath)) {
+    console.error("❌ Template path not found:", templatesPath);
+} else {
+    console.log("✅ Caminho dos templates:", templatesPath);
+}
 
 const transport = nodemailer.createTransport({
     service: "gmail",
