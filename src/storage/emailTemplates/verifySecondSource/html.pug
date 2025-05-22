@@ -1,21 +1,45 @@
-doctype html 
-html 
-    head 
-        style 
-            include style.css
-    body 
-        #secondSourceName
-            if secondSourceName
-                h1 Olá, #{secondSourceName}!
-            else
-                h1 Olá, participante!
+doctype html
+html
+  head
+    meta(http-equiv="Content-Type" content="text/html; charset=UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Verificação de E-mail - Segunda Fonte
 
-        p Você solicitou um link de verificação de e-mail para iniciar/continuar do Questionário de Altas Habilidades ou Superdotação - Adulto (Segunda Fonte).
-        
-        p
-            b Utilize o link abaixo. 
-        
-        a(href=verificationUrl target=_blank) #{verificationUrl}
+    style.
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  body(style="font-family: 'Inter', Arial, sans-serif; background-color: #f5f7fa; margin: 0; padding: 0;")
+    table(role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%")
+      tr
+        td(align="center" style="padding: 40px 20px;")
+          div(style="max-width: 600px; margin: 0 auto; background: linear-gradient(to right, #8b5cf6, #6d28d9); border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); position: relative;")
+            div(style="position: relative; z-index: 10; background-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 12px; padding: 40px; margin: 20px;")
+              div(style="display: flex; flex-direction: column; align-items: center; gap: 24px;")
+                div(style="text-align: center; color: white;")
+                  if secondSourceName
+                    h1(style="font-size: 24px; font-weight: 700; margin-bottom: 16px;") Olá, #{secondSourceName}!
+                  else
+                    h1(style="font-size: 24px; font-weight: 700; margin-bottom: 16px;") Olá, participante!
 
-        footer Caso não tenha solicitado o código, desconsidere essa mensagem.
-        footer Essa mensagem é automática e não deve ser respondida.
+                  h2(style="font-size: 18px; font-weight: 500; margin-bottom: 24px;") Você solicitou um link de verificação de e-mail para iniciar ou continuar o preenchimento do Questionário de Altas Habilidades ou Superdotação - Adulto (Segunda Fonte).
+
+                  div(style="background-color: rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center;")
+                    p(style="margin: 0 0 8px 0; font-weight: 600;") Utilize o link abaixo:
+                    a(href=verificationUrl target="_blank" style="display: inline-block; margin-top: 8px; background-color: rgba(255, 255, 255, 0.2); color: white; text-decoration: none; font-weight: 600; padding: 12px 24px; border-radius: 8px; transition: all 0.3s ease;") Acessar Questionário
+
+                    p(style="margin-top: 16px; font-size: 14px; color: rgba(255, 255, 255, 0.9); word-break: break-word;") Ou copie e cole este link no navegador: #{verificationUrl}
+
+            div(style="position: relative; z-index: 10; padding: 20px; text-align: center; color: rgba(255, 255, 255, 0.7); font-size: 12px;")
+              p(style="margin: 0 0 8px 0;") Caso você não tenha solicitado este link, por favor ignore esta mensagem.
+              p(style="margin: 0;") Essa mensagem é automática e não deve ser respondida.
+
+    style.
+      @media only screen and (max-width: 600px) {
+        div[style*="padding: 40px"] {
+          padding: 20px !important;
+        }
+
+        div[style*="width: 200px"] {
+          width: 150px !important;
+          height: 150px !important;
+        }
+      }
