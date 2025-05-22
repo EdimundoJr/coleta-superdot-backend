@@ -1,29 +1,67 @@
 doctype html
 html
-    head
-        style.
-            body { font-family: Arial; }
-            h1 { color: #333; }
-    body
-        h1 Olá, {{researcherName}}!
-        h3 A plataforma SuperDot informa que a sua solicitação de amostra foi revisada.
+  head
+    meta(http-equiv="Content-Type" content="text/html; charset=UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title Status da Solicitação de Amostra
 
-        p
-            b Resultado: {{sampleStatus}}
-        p Amostra: {{sampleName}}
-        p Quantidade de participantes autorizados: {{qttParticipantsAuthorized || "N/A"}}
-        p Responsável pela revisão: {{reviewerFullName}} ({{reviewerEmail}})
-        p Data da revisão: {{reviewDate}}
-
-        p Mensagem encaminhada pelo revisor(a): {{reviewerMessage}}
-
-        br
-        a(href="{{systemURL}}" target="_blank") Clique aqui para acessar o sistema
-        br
-        br
-        footer Caso o botão não funcione, utilize a URL a seguir: {{systemURL}}
+    style.
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+      
+  body(style="font-family: 'Inter', Arial, sans-serif; background-color: #f5f7fa; margin: 0; padding: 0;")
+    table(role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%")
+      tr
+        td(align="center" style="padding: 40px 20px;")
+          <!-- Container principal com gradiente -->
+          div(style="max-width: 600px; margin: 0 auto; background: linear-gradient(to right, #8b5cf6, #6d28d9); border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); position: relative;")
+            <!-- Elementos decorativos -->
+            div(style="position: absolute; width: 100%; height: 100%;")
+             
+            
+            
+            <!-- Conteúdo principal -->
+            div(style="position: relative; z-index: 10; background-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 12px; padding: 40px; margin: 20px;")
+              div(style="display: flex; flex-direction: column; align-items: center; gap: 24px;")
+                <!-- Ícone -->
                 
-        br
-        br
-
-        footer Essa mensagem é automática e não deve ser respondida.
+                <!-- Conteúdo do texto -->
+                div(style="text-align: center; color: white;")
+                  h1(style="font-size: 24px; font-weight: 700; margin-bottom: 16px;") Olá, #{researcherName}!
+                  h2(style="font-size: 18px; font-weight: 500; margin-bottom: 24px;") A plataforma SuperDot informa que a sua solicitação de amostra foi revisada.
+                  
+                  div(style="background-color: rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: left;")
+                    p(style="margin: 0 0 8px 0; font-weight: 600;") Resultado: 
+                      span(style="color: #{sampleStatus === 'Aprovada' ? '#a7f3d0' : sampleStatus === 'Rejeitada' ? '#fecaca' : '#fef08a'};") #{sampleStatus}
+                    p(style="margin: 0 0 8px 0;") Amostra: #{sampleName}
+                    if qttParticipantsAuthorized
+                      p(style="margin: 0 0 8px 0;") Quantidade de participantes autorizados na pesquisa: #{qttParticipantsAuthorized}
+                    p(style="margin: 0 0 8px 0;") Responsável pela revisão: #{reviewerFullName} (#{reviewerEmail})
+                    p(style="margin: 0;") Data da revisão: #{reviewDate}
+                  
+                  if reviewerMessage
+                    div(style="background-color: rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 16px; margin-bottom: 24px; text-align: left;")
+                      p(style="margin: 0; font-style: italic;") Mensagem encaminhada pelo revisor(a): 
+                      p(style="margin: 8px 0 0 0;") "#{reviewerMessage}"
+                  
+                  <!-- Botão de ação -->
+                  a(href=systemURL target="_blank" style="display: inline-block; cursor: pointer; background-color: rgba(255, 255, 255, 0.2); color: white; text-decoration: none; font-weight: 600; padding: 12px 24px; border-radius: 8px; transition: all 0.3s ease; margin-bottom: 24px;") Acessar o Sistema
+            
+            <!-- Rodapé -->
+            div(style="position: relative; z-index: 10; padding: 20px; text-align: center; color: rgba(255, 255, 255, 0.7); font-size: 12px;")
+              p(style="margin: 0 0 8px 0;") Caso o botão não funcione, copie e cole esta URL em seu navegador: 
+                br
+                span(style="word-break: break-all;") #{systemURL}
+              p(style="margin: 0;") Essa mensagem é automática e não deve ser respondida.
+    
+    style.
+           
+      @media only screen and (max-width: 600px) {
+        div[style*="padding: 40px"] {
+          padding: 20px !important;
+        }
+        
+        div[style*="width: 200px"] {
+          width: 150px !important;
+          height: 150px !important;
+        }
+      }

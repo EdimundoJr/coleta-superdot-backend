@@ -43,8 +43,7 @@ const email = new Email({
     transport,
 });
 
-
-interface EmailReviewRequest {
+interface IEmailReviewRequest {
     researcherName: string;
     researcherEmail: string;
     sampleName: string;
@@ -56,38 +55,28 @@ interface EmailReviewRequest {
     reviewerMessage: string;
 }
 
-export const dispatchReviewRequestEmail = async (requestBody: EmailReviewRequest): Promise<void> => {
-    try {
-        const templateDir = path.join(templatesPath, "reviewRequestSample");
-        console.log("Verificando diretório do template:", templateDir);
-
-        const textFallback = `Prezado(a) ${requestBody.researcherName},\n\nSua amostra "${requestBody.sampleName}" foi revisada.\nStatus: ${requestBody.sampleStatus}\n\nMensagem: ${requestBody.reviewerMessage}\n\nAcesse: ${env.FRONT_END_URL}`;
-
-        let htmlContent;
-        try {
-            htmlContent = await email.render("reviewRequestSample/html", {
-                locals: { ...requestBody, systemURL: env.FRONT_END_URL }
-            });
-        } catch (renderError) {
-            console.warn("Falha ao renderizar template HTML, usando fallback:", renderError);
-            htmlContent = `<p>${textFallback.replace(/\n/g, '<br>')}</p>`;
-        }
-
-        await email.send({
+export const dispatchReviewRequestEmail = (body: IEmailReviewRequest) => {
+    email
+        .send({
             template: "reviewRequestSample",
             message: {
-                to: requestBody.researcherEmail,
-                subject: "Sua solicitação de amostra foi revisada!",
-                text: textFallback,
-                html: htmlContent
+                to: body.researcherEmail,
+                subject: "A sua solicitação de amostra foi revisada!",
             },
-            locals: { ...requestBody, systemURL: env.FRONT_END_URL }
-        });
-
-    } catch (error) {
-        console.error("Falha no processo de envio:", error);
-
-    }
+            locals: {
+                researcherName: body.researcherName,
+                sampleName: body.sampleName,
+                sampleStatus: body.sampleStatus,
+                qttParticipantsAuthorized: body.qttParticipantsAuthorized,
+                reviewerFullName: body.reviewerFullName,
+                reviewerEmail: body.reviewerEmail,
+                reviewDate: body.reviewDate,
+                reviewerMessage: body.reviewerMessage,
+                systemURL: env.FRONT_END_URL,
+            },
+        })
+        .then(console.log)
+        .catch(console.error);
 };
 
 
