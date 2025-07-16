@@ -1,5 +1,3 @@
-![Logo-GRUPAC](https://github.com/user-attachments/assets/2e2fd3af-70c7-4a71-bd15-a35abedd4be9)
-
 [![GitHub last commit](https://img.shields.io/github/last-commit/grupac-dev/coleta-superdot-backend)](#)
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
