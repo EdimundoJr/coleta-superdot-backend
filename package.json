@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npm install --include=dev && tsc",
     "postbuild": "node scripts/copy-templates.js",
-    "start": "node build/server.js",
+    "start": "node -r dotenv/config build/server.js",
     "dev": "nodemon --require dotenv/config src/server.ts"
   },
   "author": "",
