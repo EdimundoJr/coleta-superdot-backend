@@ -1,4 +1,4 @@
-import { number, object, string, z } from "zod";
+import { number, object, string, z, array } from "zod";
 
 export const saveAutobiographySchema = object({
     body: object({
@@ -22,19 +22,18 @@ export const saveAutobiographySchema = object({
     }),
 });
 
+const markedTextSchema = object({
+    id: number(),
+    text: string(),
+    comment: string(),
+    mark: string(),
+    start: number(),
+    end: number(),
+    background: string(),
+});
 
 const bodySchema = object({
-    idEvalueAutobiography: number().optional(),
-    textEvalueAutobiography: string().optional(),
-    commentEvalueAutobiography: string().optional(),
-    markEvalueAutobiography: string().optional(),
-    startEvalueAutobiography: number().optional(),
-    endEvalueAutobiography: number().optional(),
-    backgroundEvalueAutobiography: string().optional(),
-    borderColorEvalueAutobiography: string().optional(),
-}).refine(data => data.commentEvalueAutobiography?.length || data.textEvalueAutobiography?.length, {
-    message: "Evalue Autobiography text or comment is required!",
-    path: ["commentEvalueAutobiography", "textEvalueAutobiography"],
+    markedTexts: array(markedTextSchema),
 });
 
 

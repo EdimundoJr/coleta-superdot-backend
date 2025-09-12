@@ -3,7 +3,7 @@ import env from "./util/validateEnv";
 import app from "./app";
 import 'dotenv/config';
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 mongoose.connect(env.MONGO_CONNECTION_STRING, {
     dbName: "superdot"

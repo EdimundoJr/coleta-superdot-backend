@@ -1,7 +1,6 @@
 import { cleanEnv, num, str } from "envalid";
 
 export default cleanEnv(process.env, {
-    // Variáveis obrigatórias (sem default - devem ser definidas no Render)
     MONGO_CONNECTION_STRING: str({ desc: "URI de conexão com o banco de dados MongoDB" }),
     ACCESS_TOKEN_PRIVATE_KEY: str({ desc: "Chave privada para assinar o access token JWT" }),
     ACCESS_TOKEN_PUBLIC_KEY: str({ desc: "Chave pública para verificar o access token JWT" }),
@@ -12,7 +11,7 @@ export default cleanEnv(process.env, {
     // Variáveis com valores padrão
     PORT: num({
         default: 3000,
-        desc: "Porta da aplicação (não definir no Render - usar porta automática)"
+        desc: "Porta da aplicação (usar porta automática)"
     }),
     SALT_ROUNDS: num({ default: 10 }),
     ACCESS_TOKEN_TTL: num({ default: 3600 }), // 1 hora em segundos

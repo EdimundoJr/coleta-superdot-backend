@@ -7,12 +7,13 @@ import { SendValidationEmailDTO } from "../dto/participant/sendValidationEmail.d
 import { VerifyValidationCodeDTO } from "../dto/participant/verifyValidationCode.dto";
 import { ParticipantDataDTO } from "../dto/participant/participant.dto";
 import { AcceptAllSampleDocsDTO } from "../dto/participant/acceptDocs.dto";
-import { SaveAutobiographyDTO, SaveEvalueAutobiographyDTO } from "../dto/participant/saveAutobiography.dto";
+import { SaveAutobiographyDTO, SaveEvalueAutobiographyDTO, saveEvalueAutobiographySchema } from "../dto/participant/saveAutobiography.dto";
 import { ISecondSource } from "../interface/secondSource.interface";
 import { GetInfoBioDTO, GetInfoDTO } from "../dto/participant/getInfo.dto";
 import { SaveSecondSourcesDTO } from "../dto/participant/saveSecondSources.dto";
 import { GiftdnessIndicatorsDTO } from "../dto/participant/SaveGiftnessResearcher.dto";
 import { KnowledgeAreasDTO } from "../dto/participant/saveKnowledgeAreasIndicatedByResearcher.dto";
+import z from "zod";
 
 
 export async function handlerValidateEmailInSample(
@@ -225,27 +226,25 @@ export async function handlerSaveEvalueAutobiography(
     req: Request<SaveEvalueAutobiographyDTO["params"], {}, SaveEvalueAutobiographyDTO["body"], SaveEvalueAutobiographyDTO["query"]>,
     res: Response
 ) {
-
     try {
-        const { sampleId, participantId } = req.params;
-        const { idEvalueAutobiography, endEvalueAutobiography, markEvalueAutobiography, startEvalueAutobiography, textEvalueAutobiography, commentEvalueAutobiography, backgroundEvalueAutobiography } = req.body;
+        const validatedData = saveEvalueAutobiographySchema.parse({
+            body: req.body,
+            params: req.params,
+            query: req.query,
+        });
+
+        const { sampleId, participantId } = validatedData.params;
+        const { markedTexts } = validatedData.body;
+        const submitForm = validatedData.query.submitForm === "true";
 
         if (!participantId) {
             throw Error("Invalid participant JWT.");
         }
 
-        const submitForm = req.query.submitForm === "true";
-
         const saved = await ParticipantService.saveEvalueAutobiography({
             sampleId,
             participantId,
-            idEvalueAutobiography,
-            textEvalueAutobiography,
-            commentEvalueAutobiography,
-            markEvalueAutobiography,
-            startEvalueAutobiography,
-            endEvalueAutobiography,
-            backgroundEvalueAutobiography,
+            markedTexts,
             submitForm,
         });
 
@@ -257,7 +256,13 @@ export async function handlerSaveEvalueAutobiography(
     } catch (e: any) {
         console.log(e);
 
-        // TO DO errors handlers
+        if (e instanceof z.ZodError) {
+            return res.status(400).json({
+                message: "Validation error",
+                errors: e.errors,
+            });
+        }
+
         res.status(409).send(e.message);
     }
 }

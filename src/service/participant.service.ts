@@ -301,50 +301,33 @@ export async function saveAutobiography({
     return true;
 }
 
-interface evaluateAutobiographyParams {
+interface EvaluateAutobiographyParams {
     sampleId: string;
     participantId: string;
-    idEvalueAutobiography?: number;
-    textEvalueAutobiography?: string;
-    commentEvalueAutobiography?: string;
-    markEvalueAutobiography?: string;
-    startEvalueAutobiography?: number;
-    endEvalueAutobiography?: number;
-    backgroundEvalueAutobiography?: string,
-    submitForm?: boolean
-};
+    markedTexts: Array<{
+        id: number;
+        text: string;
+        comment: string;
+        mark: string;
+        start: number;
+        end: number;
+        background: string;
+    }>;
+    submitForm?: boolean;
+}
 
 export async function saveEvalueAutobiography({
     sampleId,
     participantId,
-    idEvalueAutobiography,
-    textEvalueAutobiography,
-    commentEvalueAutobiography,
-    markEvalueAutobiography,
-    startEvalueAutobiography,
-    endEvalueAutobiography,
-    backgroundEvalueAutobiography,
+    markedTexts,
     submitForm,
-}: evaluateAutobiographyParams) {
-    await ResearcherModel.findOneAndUpdate(
-        { "researchSamples._id": sampleId, "researchSamples.participants._id": participantId },
-        {
-            $push: {
-                "researchSamples.$[sam].participants.$[part].evaluateAutobiography": {
-                    id: idEvalueAutobiography,
-                    text: textEvalueAutobiography,
-                    comment: commentEvalueAutobiography,
-                    mark: markEvalueAutobiography,
-                    start: startEvalueAutobiography,
-                    end: endEvalueAutobiography,
-                    background: backgroundEvalueAutobiography,
-                }
-            },
-        },
-        {
-            arrayFilters: [{ "sam._id": sampleId }, { "part._id": participantId }],
-        }
-    );
+}: EvaluateAutobiographyParams) {
+    const { researcherDoc, sample } = await getSampleById({ sampleId });
+    const participant = findParticipantById({ sample, participantId });
+
+    participant.evaluateAutobiography = markedTexts;
+
+    await researcherDoc.save();
 
     return true;
 }
