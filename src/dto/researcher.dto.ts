@@ -3,6 +3,7 @@ import validator from "validator";
 
 import { object, string, z, optional } from "zod";
 
+
 export const researcherBodyDTO = object({
     personalData: object({
         fullName: string({
@@ -68,24 +69,46 @@ export const researcherDTO = object({
 });
 
 export const updateResearcherDTO = object({
-    body: researcherBodyDTO
-        .extend({
-            password: optional(string().min(8, "Password too short - should be 8 chars minimium")),
-            passwordConfirmation: optional(string()),
-        })
-        .refine(
-            (data) => {
-                if (data.password) {
-                    return data.password === data.passwordConfirmation;
-                }
-                return true;
-            },
-            {
-                message: "Passwords do not match",
-                path: ["passwordConfirmation"],
-            }
-        ),
+    body: object({
+        personalData: object({
+            fullName: optional(string().trim()),
+            profilePhoto: optional(string()),
+        }),
+        currentPassword: optional(string()),
+        password: optional(string().min(8, "Password too short - should be 8 chars minimum")),
+        passwordConfirmation: optional(string()),
+    }).refine((data) => {
+        if (data.password) {
+            return data.password === data.passwordConfirmation;
+        }
+        return true;
+    }, {
+        message: "Passwords do not match",
+        path: ["passwordConfirmation"],
+    }),
 });
+
+// dto/researcher.dto.ts
+export const updateResearcherFormDataDTO = object({
+    body: object({
+        personalData: object({
+            fullName: optional(string().trim()),
+        }).optional(), // Agora é um objeto opcional
+        currentPassword: optional(string()),
+        password: optional(string().min(8, "Password too short - should be 8 chars minimum")),
+        passwordConfirmation: optional(string()),
+    }).refine((data) => {
+        if (data.password) {
+            return data.password === data.passwordConfirmation;
+        }
+        return true;
+    }, {
+        message: "Passwords do not match",
+        path: ["passwordConfirmation"],
+    }),
+});
+
+export type UpdateResearcherFormDataDTO = z.infer<typeof updateResearcherFormDataDTO>;
 
 export type ResearcherDTO = z.infer<typeof researcherDTO>;
 export type UpdateResearcherDTO = z.infer<typeof updateResearcherDTO>;

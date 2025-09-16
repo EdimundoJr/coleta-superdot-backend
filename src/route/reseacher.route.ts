@@ -1,17 +1,23 @@
 import express from "express";
 import { validateDTO } from "../middleware/validateDTO.middleware";
 import * as ResearcherController from "../controller/researcher.controller";
-import { paginateResearcherDTO, updateResearcherDTO } from "../dto/researcher.dto";
+import { paginateResearcherDTO, updateResearcherFormDataDTO } from "../dto/researcher.dto";
 import { requireResearcherJWT } from "../middleware/requireResearcherJWT.middleware";
 import { requireRole } from "../middleware/requireRole.middleware";
 import { getResearcherNameBySampleIdSchema } from "../dto/researcher/getResearcherNameBySampleId.dto";
 import { getResearchDataBySampleIdAndParticipantIdSchema } from "../dto/researcher/getResearchDataBySampleIdAndParticipantId.dto";
+import { uploaderConfig } from "../util/uploader";
+import { processFormData } from "../middleware/formDataProcessor";
+import { checkExistingAvatar } from "../middleware/checkExistingAvatar";
 
 const researcherRouter = express.Router();
 
 researcherRouter.put(
     "/update-researcher",
-    [validateDTO(updateResearcherDTO), requireResearcherJWT],
+    [validateDTO(updateResearcherFormDataDTO), requireResearcherJWT],
+    processFormData,
+    checkExistingAvatar,
+    uploaderConfig.single("profilePhoto"),
     ResearcherController.updateResearcherHandler
 );
 
