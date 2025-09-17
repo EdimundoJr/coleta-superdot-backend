@@ -17,17 +17,14 @@ const storage = multer.diskStorage({
         const existingProfilePhoto = req.body.existingProfilePhoto;
 
         if (existingProfilePhoto) {
-            // Se já existe um avatar, usar o mesmo nome E DELETAR O ARQUIVO ANTIGO
             const filePath = path.join(uploadFilePath, existingProfilePhoto);
 
-            // Verificar se o arquivo existe e deletar
             if (fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
             }
 
             cb(null, existingProfilePhoto);
         } else {
-            // Se não existe, criar novo nome aleatório
             const uniquePrefix = Date.now() + "-" + Math.round(Math.random() * 1e9);
             const fileExtension = path.extname(file.originalname).toLowerCase();
             const newFilename = uniquePrefix + fileExtension;
@@ -37,15 +34,17 @@ const storage = multer.diskStorage({
 });
 
 export const uploaderConfig = multer({
-    storage,
+    storage: storage,
     limits: { fileSize: 10 * 1024 * 1024 },
-    preservePath: true,
-    fileFilter: (req, file, callback) => {
-        const allowedMime = ["image/png", "image/jpg", "image/jpeg"];
+    fileFilter(req, file, callback) {
+        const extension: boolean =
+            [".png", ".jpg", ".jpeg", ".pdf"].indexOf(path.extname(file.originalname).toLowerCase()) >= 0;
+        const mimeType: boolean =
+            ["image/png", "image/jpg", "image/jpeg", "application/pdf"].indexOf(file.mimetype) >= 0;
 
-        if (allowedMime.includes(file.mimetype)) {
+        if (extension && mimeType) {
             return callback(null, true);
         }
-        callback(new Error("Invalid file type. Only PNG, JPG and JPEG are allowed."));
+        callback(new Error("Invalid file type."));
     },
 });
