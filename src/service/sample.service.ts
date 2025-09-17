@@ -3,6 +3,8 @@ import { Page } from "../interface/page.interface";
 import ISample from "../interface/sample.interface";
 import ResearcherModel from "../model/researcher.model";
 import { dispatchParticipantIndicationEmail } from "../util/emailSender.util";
+import { DashboardInfo, MonthlyProgressItem } from '../model/dashboard.models';
+
 
 interface GetSampleByIdParams {
     sampleId: string;
@@ -335,143 +337,146 @@ export async function loadInformationDashboard() {
             {
                 $facet: {
                     gender_female: [
-                        {
-                            $unwind: "$researchSamples",
-                        },
-                        {
-                            $unwind: "$researchSamples.participants",
-                        },
-                        {
-                            $match: {
-                                "researchSamples.participants.personalData.gender": "Feminino",
-                            },
-                        },
-                        {
-                            $count: "count_female",
-                        },
+                        { $unwind: "$researchSamples" },
+                        { $unwind: "$researchSamples.participants" },
+                        { $match: { "researchSamples.participants.personalData.gender": "Feminino" } },
+                        { $count: "count_female" },
                     ],
                     gender_male: [
-                        {
-                            $unwind: "$researchSamples",
-                        },
-                        {
-                            $unwind: "$researchSamples.participants",
-                        },
-                        {
-                            $match: {
-                                "researchSamples.participants.personalData.gender": "Masculino",
-                            },
-                        },
-                        {
-                            $count: "count_male",
-                        },
+                        { $unwind: "$researchSamples" },
+                        { $unwind: "$researchSamples.participants" },
+                        { $match: { "researchSamples.participants.personalData.gender": "Masculino" } },
+                        { $count: "count_male" },
                     ],
                     instituition: [
-                        {
-                            $match: {
-                                "researchSamples.instituition": { $exists: true },
-                            },
-                        },
-                        {
-                            $unwind: "$researchSamples",
-                        },
-                        {
-                            $unwind: "$researchSamples.instituition",
-                        },
+                        { $unwind: "$researchSamples" },
                         {
                             $group: {
-                                _id: null,
-                                total_unique_instituition: {
-                                    $addToSet: "$researchSamples.instituition.name",
-                                },
-                            },
+                                _id: "$researchSamples.instituition.name",
+                                count: { $sum: 1 }
+                            }
                         },
                         {
                             $project: {
                                 _id: 0,
-                                total_unique_instituition: {
-                                    $size: "$total_unique_instituition",
-                                },
-                            },
-                        },
+                                label: "$_id",
+                                count: "$count"
+                            }
+                        }
                     ],
                     sample: [
-                        {
-                            $match: {
-                                "researchSamples.status": "Autorizado",
-                            },
-                        },
-                        {
-                            $unwind: "$researchSamples",
-                        },
-                        {
-                            $unwind: "$researchSamples.sampleTitle",
-                        },
+                        { $unwind: "$researchSamples" },
                         {
                             $group: {
                                 _id: null,
-                                total_samples: {
-                                    $addToSet: "$researchSamples.sampleTitle",
-                                },
+                                total_samples: { $addToSet: "$researchSamples.sampleTitle" },
                             },
                         },
                         {
                             $project: {
                                 _id: 0,
-                                total_samples: {
-                                    $size: "$total_samples",
-                                },
+                                total_samples: { $size: "$total_samples" },
                             },
                         },
                     ],
                     participants: [
+                        { $unwind: "$researchSamples" },
+                        { $unwind: "$researchSamples.participants" },
                         {
-                            $match: {
-                                "researchSamples.participants.personalData.fullName": { $exists: true },
+                            $group: {
+                                _id: null,
+                                total_participants: { $sum: 1 },
                             },
                         },
-                        {
-                            $unwind: "$researchSamples",
-                        },
-                        {
-                            $unwind: "$researchSamples.participants",
-                        },
-                        {
-                            $count: "total_participants",
-                        },
                     ],
+                    collectionStatus: [
+                        { $unwind: "$researchSamples" },
+                        {
+                            $group: {
+                                _id: "$researchSamples.status",
+                                count: { $sum: 1 }
+                            }
+                        }
+                    ],
+                    regionalDistribution: [
+                        { $unwind: "$researchSamples" },
+                        { $unwind: "$researchSamples.participants" },
+                        {
+                            $group: {
+                                _id: "$researchSamples.participants.personalData.countryState",
+                                count: { $sum: 1 }
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 0,
+                                label: "$_id",
+                                count: "$count"
+                            }
+                        }
+                    ],
+                    monthlyProgress: [
+                        { $unwind: "$researchSamples" },
+                        {
+                            $project: {
+                                month: { $month: "$researchSamples.createdAt" },
+                                year: { $year: "$researchSamples.createdAt" },
+                                participants: "$researchSamples.participants"
+                            }
+                        },
+                        { $unwind: "$participants" },
+                        {
+                            $group: {
+                                _id: { month: "$month", year: "$year" },
+                                samples: { $sum: 1 },
+                                participants: { $sum: 1 }
+                            }
+                        },
+                        { $sort: { "_id.year": 1, "_id.month": 1 } },
+                    ]
                 },
             },
         ]);
-
 
         if (!result || result.length === 0) {
             throw new Error("An error occurred while loading information for the dashboard.");
         }
 
-        const {
-            gender_female = [{}],
-            gender_male = [{}],
-            instituition = [{}],
-            sample = [{}],
-            participants = [{}]
-        } = result[0];
+        const data = result[0];
 
-        const count_female = gender_female.length > 0 ? gender_female[0].count_female : 0;
-        const count_male = gender_male.length > 0 ? gender_male[0].count_male : 0;
-        const total_unique_instituition = instituition.length > 0 ? instituition[0].total_unique_instituition : 0;
-        const total_samples = sample.length > 0 ? sample[0].total_samples : 0;
-        const total_participants = participants.length > 0 ? participants[0].total_participants : 0;
+        // Format data for charts
+        const monthlyProgressData: MonthlyProgressItem[] = data.monthlyProgress.map((item: { _id: { month: number, year: number }, samples: number, participants: number }) => ({
+            month: `${item._id.month}-${item._id.year}`,
+            samples: item.samples,
+            participants: item.participants
+        }));
 
-        return {
-            count_female,
-            count_male,
-            total_unique_instituition,
-            total_samples,
-            total_participants
+        const institutionData = {
+            labels: data.instituition.map((item: { label: string, count: number }) => item.label),
+            series: data.instituition.map((item: { label: string, count: number }) => item.count)
         };
 
+        const regionalData = {
+            labels: data.regionalDistribution.map((item: { label: string, count: number }) => item.label),
+            series: data.regionalDistribution.map((item: { label: string, count: number }) => item.count)
+        };
 
+        const collectionStatusData = {
+            completed: data.collectionStatus.find((s: { _id: string, count: number }) => s._id === 'Autorizado')?.count || 0,
+            pending: data.collectionStatus.find((s: { _id: string, count: number }) => s._id === 'Pendente')?.count || 0
+        };
+
+        return {
+            count_female: (data.gender_female[0]?.count_female || 0) as number,
+            count_male: (data.gender_male[0]?.count_male || 0) as number,
+            total_unique_instituition: (data.instituition.length || 0) as number,
+            total_samples: (data.sample[0]?.total_samples || 0) as number,
+            total_participants: (data.participants[0]?.total_participants || 0) as number,
+            monthlyProgress: monthlyProgressData,
+            institutionDistribution: institutionData,
+            regionalDistribution: regionalData,
+            collectionStatus: collectionStatusData,
+        };
     } catch (error) {
         throw new Error("An error occurred while loading information for the dashboard.");
     }

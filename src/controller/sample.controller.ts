@@ -210,7 +210,7 @@ export async function loadDashboard(req: Request<{}, {}, {}, {}>, res: Response)
 
         const result = await SampleService.loadInformationDashboard();
         // console.log(result)
-        res.status(200).json({ result });
+        res.status(200).json(result);
 
 
     } catch (e: any) {
