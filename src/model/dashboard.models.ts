@@ -17,6 +17,20 @@ export interface DashboardInfo {
     completed: number;
     pending: number;
   };
+  ageDistribution: {
+    labels: string[];
+    series: number[];
+  };
+  knowledgeAreaDistribution: {
+    labels: string[];
+    series: number[];
+  };
+  participantProgress: {
+    "Não iniciado": number;
+    "Preenchendo": number;
+    "Aguardando 2ª fonte": number;
+    "Finalizado": number;
+  };
 }
 
 export interface MonthlyProgressItem {

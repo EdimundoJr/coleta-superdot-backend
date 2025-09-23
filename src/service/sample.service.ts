@@ -389,6 +389,57 @@ export async function loadInformationDashboard() {
                             },
                         },
                     ],
+                    participantProgress: [
+                        { $unwind: "$researchSamples" },
+                        { $unwind: "$researchSamples.participants" },
+                        {
+                            $addFields: {
+                                isSecondSourceFinished: {
+                                    $gt: [
+                                        {
+                                            $size: {
+                                                $filter: {
+                                                    input: "$researchSamples.participants.secondSources",
+                                                    as: "ss",
+                                                    cond: { $ifNull: ["$$ss.adultForm.endFillFormAt", false] }
+                                                }
+                                            }
+                                        },
+                                        0
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            $project: {
+                                status: {
+                                    $switch: {
+                                        branches: [
+                                            {
+                                                case: { $not: ["$researchSamples.participants.adultForm.startFillFormAt"] },
+                                                then: "Não iniciado"
+                                            },
+                                            {
+                                                case: { $not: ["$researchSamples.participants.adultForm.endFillFormAt"] },
+                                                then: "Preenchendo"
+                                            },
+                                            {
+                                                case: { $not: ["$isSecondSourceFinished"] },
+                                                then: "Aguardando 2ª fonte"
+                                            },
+                                        ],
+                                        default: "Finalizado"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            $group: {
+                                _id: "$status",
+                                count: { $sum: 1 }
+                            }
+                        }
+                    ],
                     collectionStatus: [
                         { $unwind: "$researchSamples" },
                         {
@@ -400,10 +451,9 @@ export async function loadInformationDashboard() {
                     ],
                     regionalDistribution: [
                         { $unwind: "$researchSamples" },
-                        { $unwind: "$researchSamples.participants" },
                         {
                             $group: {
-                                _id: "$researchSamples.participants.personalData.countryState",
+                                _id: "$researchSamples.countryState",
                                 count: { $sum: 1 }
                             }
                         },
@@ -421,18 +471,85 @@ export async function loadInformationDashboard() {
                             $project: {
                                 month: { $month: "$researchSamples.createdAt" },
                                 year: { $year: "$researchSamples.createdAt" },
-                                participants: "$researchSamples.participants"
+                                participantsCount: { $size: "$researchSamples.participants" }
                             }
                         },
-                        { $unwind: "$participants" },
                         {
                             $group: {
                                 _id: { month: "$month", year: "$year" },
-                                samples: { $sum: 1 },
-                                participants: { $sum: 1 }
+                                totalSamples: { $sum: 1 },
+                                totalParticipants: { $sum: "$participantsCount" }
                             }
                         },
                         { $sort: { "_id.year": 1, "_id.month": 1 } },
+                    ],
+                    ageDistribution: [
+                        { $unwind: "$researchSamples" },
+                        { $unwind: "$researchSamples.participants" },
+                        {
+                            $project: {
+                                age: {
+                                    $dateDiff: {
+                                        startDate: "$researchSamples.participants.personalData.birthDate",
+                                        endDate: new Date(),
+                                        unit: "year"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            $bucket: {
+                                groupBy: "$age",
+                                boundaries: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, Infinity],
+                                default: "Mais de 110",
+                                output: {
+                                    count: { $sum: 1 }
+                                }
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 0,
+                                label: {
+                                    $switch: {
+                                        branches: [
+                                            { case: { $eq: ["$_id", 0] }, then: "0-10" },
+                                            { case: { $eq: ["$_id", 10] }, then: "11-20" },
+                                            { case: { $eq: ["$_id", 20] }, then: "21-30" },
+                                            { case: { $eq: ["$_id", 30] }, then: "31-40" },
+                                            { case: { $eq: ["$_id", 40] }, then: "41-50" },
+                                            { case: { $eq: ["$_id", 50] }, then: "51-60" },
+                                            { case: { $eq: ["$_id", 60] }, then: "61-70" },
+                                            { case: { $eq: ["$_id", 70] }, then: "71-80" },
+                                            { case: { $eq: ["$_id", 80] }, then: "81-90" },
+                                            { case: { $eq: ["$_id", 90] }, then: "91-100" },
+                                            { case: { $eq: ["$_id", 100] }, then: "101-110" },
+                                            { case: { $eq: ["$_id", 110] }, then: "Mais de 110" }
+                                        ],
+                                        default: "Outros"
+                                    }
+                                },
+                                count: "$count"
+                            }
+                        },
+                    ],
+                    knowledgeAreaDistribution: [
+                        { $unwind: "$researchSamples" },
+                        { $unwind: "$researchSamples.participants" },
+                        { $unwind: "$researchSamples.participants.adultForm.knowledgeAreas" },
+                        {
+                            $group: {
+                                _id: "$researchSamples.participants.adultForm.knowledgeAreas",
+                                count: { $sum: 1 }
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 0,
+                                label: "$_id",
+                                count: "$count"
+                            }
+                        }
                     ]
                 },
             },
@@ -445,25 +562,41 @@ export async function loadInformationDashboard() {
         const data = result[0];
 
         // Format data for charts
-        const monthlyProgressData: MonthlyProgressItem[] = data.monthlyProgress.map((item: { _id: { month: number, year: number }, samples: number, participants: number }) => ({
+        const monthlyProgressData = data.monthlyProgress.map((item: any) => ({
             month: `${item._id.month}-${item._id.year}`,
-            samples: item.samples,
-            participants: item.participants
+            samples: item.totalSamples,
+            participants: item.totalParticipants
         }));
 
         const institutionData = {
-            labels: data.instituition.map((item: { label: string, count: number }) => item.label),
-            series: data.instituition.map((item: { label: string, count: number }) => item.count)
+            labels: data.instituition.map((item: any) => item.label),
+            series: data.instituition.map((item: any) => item.count)
         };
 
         const regionalData = {
-            labels: data.regionalDistribution.map((item: { label: string, count: number }) => item.label),
-            series: data.regionalDistribution.map((item: { label: string, count: number }) => item.count)
+            labels: data.regionalDistribution.map((item: any) => item.label),
+            series: data.regionalDistribution.map((item: any) => item.count)
         };
 
         const collectionStatusData = {
-            completed: data.collectionStatus.find((s: { _id: string, count: number }) => s._id === 'Autorizado')?.count || 0,
-            pending: data.collectionStatus.find((s: { _id: string, count: number }) => s._id === 'Pendente')?.count || 0
+            completed: data.collectionStatus.find((s: any) => s._id === 'Autorizado')?.count || 0,
+            pending: data.collectionStatus.find((s: any) => s._id === 'Pendente')?.count || 0,
+            rejected: data.collectionStatus.find((s: any) => s._id === 'Não Autorizado')?.count || 0
+        };
+
+        const ageDistributionData = {
+            labels: data.ageDistribution.map((item: any) => item.label),
+            series: data.ageDistribution.map((item: any) => item.count)
+        };
+
+        const participantProgressData = data.participantProgress.reduce((acc: { [key: string]: number }, item: any) => {
+            acc[item._id] = item.count;
+            return acc;
+        }, {});
+
+        const knowledgeAreaDistributionData = {
+            labels: data.knowledgeAreaDistribution.map((item: any) => item.label),
+            series: data.knowledgeAreaDistribution.map((item: any) => item.count)
         };
 
         return {
@@ -472,10 +605,13 @@ export async function loadInformationDashboard() {
             total_unique_instituition: (data.instituition.length || 0) as number,
             total_samples: (data.sample[0]?.total_samples || 0) as number,
             total_participants: (data.participants[0]?.total_participants || 0) as number,
+            participantProgress: participantProgressData,
             monthlyProgress: monthlyProgressData,
             institutionDistribution: institutionData,
             regionalDistribution: regionalData,
             collectionStatus: collectionStatusData,
+            ageDistribution: ageDistributionData,
+            knowledgeAreaDistribution: knowledgeAreaDistributionData,
         };
     } catch (error) {
         throw new Error("An error occurred while loading information for the dashboard.");
