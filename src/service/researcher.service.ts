@@ -68,12 +68,20 @@ export async function paginateResearchers(
         )
             .where("_id")
             .ne(currentResearcherId)
-            .limit(itemsPerPage * currentPage)
+            .limit(itemsPerPage)
             .skip((currentPage - 1) * itemsPerPage);
 
         const researchers = await query.exec();
 
-        const totalResearchers = await ResearcherModel.countDocuments(query);
+        // O countDocuments precisa usar a mesma query para ser preciso
+        const countQuery = ResearcherModel.countDocuments({
+            $and: [
+                filter.userName ? { "personalData.fullName": RegExp(filter.userName, "i") } : {},
+                filter.userEmail ? { email: RegExp(filter.userEmail, "i") } : {},
+            ],
+        }).where("_id").ne(currentResearcherId);
+
+        const totalResearchers = await countQuery.exec();
 
         return {
             researchers,
