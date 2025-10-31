@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 import { Page } from "../interface/page.interface";
 import ISample from "../interface/sample.interface";
 import ResearcherModel from "../model/researcher.model";
-import { dispatchParticipantIndicationEmail } from "../util/emailSender.util";
-import { DashboardInfo, MonthlyProgressItem } from '../model/dashboard.models';
+import { dispatchNewSampleNotificationEmail, dispatchParticipantIndicationEmail } from "../util/emailSender.util";
+import { getResearcherRole } from "./researcher.service";
 
 
 interface GetSampleByIdParams {
@@ -56,6 +56,31 @@ export async function createSample(researcherId: string, sampleData: ISample): P
     researcher.researchSamples?.push(sampleData);
 
     await researcher.save();
+
+    const allResearchers = await ResearcherModel.find();
+    await Promise.all(
+        allResearchers.map(async (user) => {
+            const userRole = await getResearcherRole(user._id.toString());
+
+
+            if (["Administrador", "Revisor"].includes(userRole || "")) {
+                try {
+                    await dispatchNewSampleNotificationEmail({
+                        researcherEmail: user.email,
+                        senderEmail: researcher.email,
+                        sample: sampleData.researchTitle?.toString() ?? "N/A",
+                        sampleName: sampleData.sampleTitle?.toString() ?? "N/A",
+                        sampleStatus: sampleData.status,
+                        sampleInstituition: sampleData.instituition.name,
+                        submissionDate: new Date().toLocaleDateString("pt-BR"),
+                    });
+
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        })
+    );
 
     return sampleData;
 }

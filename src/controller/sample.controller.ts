@@ -209,7 +209,6 @@ export async function loadDashboard(req: Request<{}, {}, {}, {}>, res: Response)
     try {
 
         const result = await SampleService.loadInformationDashboard();
-        // console.log(result)
         res.status(200).json(result);
 
 
@@ -226,7 +225,6 @@ export async function answerByGender(req: Request<{}, {}, {}, {}>, res: Response
     try {
 
         const result = await SampleService.loadanswerByGender();
-        // console.log(result)
         res.status(200).json({ result });
 
 

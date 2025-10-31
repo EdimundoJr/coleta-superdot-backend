@@ -3,20 +3,10 @@ import env from "./validateEnv";
 import Email from "email-templates";
 import * as path from "path";
 import { RolesType, SampleStatus } from "./consts";
-import fs from "fs";
 
 const templatesPath = path.join(__dirname, "../storage/emailTemplates");
 
 
-console.log("🔍 __dirname real:", __dirname);
-console.log("📁 Resolvendo para:", templatesPath);
-console.log("📦 Existe?", fs.existsSync(templatesPath));
-
-if (!fs.existsSync(templatesPath)) {
-    console.error("❌ Template path not found:", templatesPath);
-} else {
-    console.log("✅ Caminho dos templates:", templatesPath);
-}
 
 const transport = nodemailer.createTransport({
     service: "gmail",
@@ -218,6 +208,52 @@ export const dispatchParticipantIndicationEmail = ({
                 researcherEmail: researcherEmail,
                 researcherName: researcherName,
                 formURL: `${env.FRONT_END_URL}/formulario-adulto/${sampleId}`,
+            },
+        })
+        .then(console.log)
+        .catch(console.error);
+};
+
+interface IEmailNewSampleNotification {
+    researcherEmail: string;
+    senderName?: string;
+    senderEmail?: string;
+    sampleName: string;
+    submissionDate: string;
+    sampleDescription?: string;
+    sample?: string;
+    sampleStatus?: SampleStatus;
+    sampleInstituition?: string;
+}
+
+export const dispatchNewSampleNotificationEmail = ({
+    researcherEmail,
+    senderName,
+    senderEmail,
+    sampleName,
+    sample,
+    sampleStatus,
+    sampleInstituition,
+    submissionDate,
+    sampleDescription,
+}: IEmailNewSampleNotification) => {
+    email
+        .send({
+            template: "newSampleNotification",
+            message: {
+                to: researcherEmail,
+                subject: "Nova amostra disponível para análise",
+            },
+            locals: {
+                senderName,
+                senderEmail,
+                sample,
+                sampleStatus,
+                sampleInstituition,
+                sampleName,
+                submissionDate,
+                sampleDescription,
+                systemURL: `${env.FRONT_END_URL}/app/review-requests`,
             },
         })
         .then(console.log)

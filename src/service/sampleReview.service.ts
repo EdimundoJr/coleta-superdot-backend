@@ -3,7 +3,6 @@ import ISampleReview from "../interface/sampleReview.interface";
 import ResearcherModel from "../model/researcher.model";
 import * as EmailUtils from "../util/emailSender.util";
 import { findResearcher } from "./researcher.service";
-import IResearcher from "../interface/researcher.interface";
 import { DateTime } from "luxon";
 
 export async function createReview(sampleId: string, reviewData: ISampleReview) {

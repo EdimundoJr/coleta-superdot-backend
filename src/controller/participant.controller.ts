@@ -333,7 +333,6 @@ export async function handlerGetParticipantInfo(req: Request<GetInfoDTO["params"
             participantId,
         });
 
-        console.log(participantData);
 
         res.status(200).json(participantData);
     } catch (e: any) {
