@@ -4,70 +4,100 @@ html
     meta(http-equiv="Content-Type" content="text/html; charset=UTF-8")
     meta(name="viewport" content="width=device-width, initial-scale=1.0")
     title Status da Solicitação de Amostra
-
-    style.
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-      
-  body(style="font-family: 'Inter', Arial, sans-serif; background-color: #f5f7fa; margin: 0; padding: 0;")
-    table(role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%")
+  body(style="font-family: 'Inter', Arial, sans-serif; background-color: #f5f7fa; margin: 0; padding: 40px 0; text-align: center;")
+    table(
+      role="presentation"
+      cellspacing="0"
+      cellpadding="0"
+      border="0"
+      align="center"
+      style="max-width: 500px; background-color: #ffffff; border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); overflow: hidden; margin: auto;"
+    )
       tr
-        td(align="center" style="padding: 40px 20px;")
-          <!-- Container principal com gradiente -->
-          div(style="max-width: 600px; margin: 0 auto; background: linear-gradient(to right, #8b5cf6, #6d28d9); border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); position: relative;")
-            <!-- Elementos decorativos -->
-            div(style="position: absolute; width: 100%; height: 100%;")
-             
-            
-            
-            <!-- Conteúdo principal -->
-            div(style="position: relative; z-index: 10; background-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 12px; padding: 40px; margin: 20px;")
-              div(style="display: flex; flex-direction: column; align-items: center; gap: 24px;")
-                <!-- Conteúdo do texto -->
-                div(style="text-align: center; color: white;")
-                  h1(style="font-size: 24px; font-weight: 700; margin-bottom: 16px;") Olá, #{researcherName}!
-                  h2(style="font-size: 18px; font-weight: 500; margin-bottom: 24px;") A plataforma SuperDot informa que a sua solicitação de amostra foi revisada.
-                  
-                  div(style="background-color: rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: left;")
-                    p(style="margin: 0 0 8px 0; font-weight: 600;") Resultado: 
-                      span(style="color: #{sampleStatus === 'Aprovada' ? '#a7f3d0' : sampleStatus === 'Rejeitada' ? '#fecaca' : '#fef08a'};") #{sampleStatus}
-                    p(style="margin: 0 0 8px 0;") Amostra: #{sampleName}
-                    if qttParticipantsAuthorized
-                      p(style="margin: 0 0 8px 0;") Quantidade de participantes autorizados na pesquisa: #{qttParticipantsAuthorized}
-                    p(style="margin: 0 0 8px 0;") Responsável pela revisão: #{reviewerFullName} (#{reviewerEmail})
-                    p(style="margin: 0;") Data da revisão: #{reviewDate}
-                  
-                  if reviewerMessage
-                    div(style="background-color: rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 16px; margin-bottom: 24px; text-align: left;")
-                      p(style="margin: 0; font-style: italic;") Mensagem encaminhada pelo revisor(a): 
-                      p(style="margin: 8px 0 0 0;") "#{reviewerMessage}"
-                  
-                  <!-- Botão de ação -->
-                  a(href=systemURL target="_blank" style="display: inline-block; cursor: pointer; background-color: rgba(255, 255, 255, 0.2); color: white; text-decoration: none; font-weight: 600; padding: 12px 24px; border-radius: 8px; transition: all 0.3s ease; margin-bottom: 24px;") Acessar o Sistema
-            
-            <!-- Rodapé -->
-            div(style="position: relative; z-index: 10; padding: 20px; text-align: center; color: rgba(255, 255, 255, 0.7); font-size: 12px;")
-              p(style="margin: 0 0 8px 0;") Caso o botão não funcione, copie e cole esta URL em seu navegador: 
-                br
-                span(style="word-break: break-all;") #{systemURL}
-              p(style="margin: 0;") Essa mensagem é automática e não deve ser respondida.
-    
-    style.
-           
-      @media only screen and (max-width: 600px) {
-        div[style*="padding: 40px"] {
-          padding: 20px !important;
-        }
-        
-        div[style*="width: 200px"] {
-          width: 150px !important;
-          height: 150px !important;
-        }
-      }
-       a:hover {
-        background-color: rgba(255, 255, 255, 0.3) !important;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
-        transform: translateY(-2px) !important;
-      }
-      a {
-        cursor: pointer !important;
-      }
+        td(style="background: linear-gradient(to bottom right, #7c3aed, #a855f7, #7c3aed); padding: 32px 20px 20px 20px; position: relative; text-align: center;")
+          div(style="display:inline-block; background-color:#ede9fe; border-radius:50%; width:72px; height:72px; line-height:72px; text-align:center; font-size: 32px; color: #8b5cf6;")
+            | !{'🔔'}
+
+      tr
+        td(style="padding: 24px 20px 12px 20px; text-align: center;")
+          h2(style="margin: 0; font-size: 20px; font-weight: 700; color: #1f2937;") Status da Solicitação de Amostra
+          p(style="margin: 12px 0 0 0; font-size: 15px; color: #4b5563;") Sua solicitação de amostra foi revisada. Confira os detalhes abaixo.
+
+      tr
+        td(style="padding: 0 20px 20px 20px; text-align: center;")
+          div(style="background-color: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 16px; text-align: left; border-left: 4px solid #8b5cf6;")
+            p(style="margin: 0 0 12px 0; font-size: 16px; font-weight: 600; color: #1f2937;") Olá, #{researcherName}!
+            p(style="margin: 0 0 16px 0; font-size: 14px; color: #4b5563;") A plataforma SuperDot informa que sua solicitação foi revisada.
+
+            div(style="background-color: #ffffff; border-radius: 8px; padding: 16px; border: 1px solid #e5e7eb;")
+              p(style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #374151;")
+                | Resultado:
+                span(style=`color: ${sampleStatus === 'Autorizado' ? '#059669' : sampleStatus === 'Não Autorizado' ? '#dc2626' : '#d97706'};`)
+                  |  #{sampleStatus}
+              p(style="margin: 0 0 8px 0; font-size: 14px; color: #4b5563;")
+                strong Amostra:
+                |  #{sampleName}
+              if qttParticipantsAuthorized
+                p(style="margin: 0 0 8px 0; font-size: 14px; color: #4b5563;")
+                  strong Participantes autorizados:
+                  |  #{qttParticipantsAuthorized}
+              p(style="margin: 0 0 8px 0; font-size: 14px; color: #4b5563;")
+                strong Revisor:
+                |  #{reviewerFullName}
+              p(style="margin: 0 0 8px 0; font-size: 14px; color: #4b5563;")
+                strong Email:
+                |  #{reviewerEmail}
+              p(style="margin: 0; font-size: 14px; color: #4b5563;")
+                strong Data da revisão:
+                |  #{reviewDate}
+
+            if reviewerMessage
+              div(
+                style=`background-color: ${sampleStatus === 'Autorizado'
+                        ? '#ecfdf5'
+                        : sampleStatus === 'Não Autorizado'
+                        ? '#fef2f2'
+                        : '#fffbeb'};
+                      border-radius: 8px;
+                      padding: 16px;
+                      margin-top: 16px;
+                      border-left: 3px solid ${sampleStatus === 'Autorizado'
+                        ? '#059669'
+                        : sampleStatus === 'Não Autorizado'
+                        ? '#dc2626'
+                        : '#d97706'};`
+              )
+                p(
+                  style=`margin: 0 0 8px 0;
+                        font-size: 14px;
+                        font-weight: 600;
+                        color: ${sampleStatus === 'Autorizado'
+                          ? '#065f46'
+                          : sampleStatus === 'Não Autorizado'
+                          ? '#991b1b'
+                          : '#92400e'};`
+                ) Mensagem do revisor(a):
+                p(
+                  style=`margin: 0;
+                        font-size: 14px;
+                        font-style: italic;
+                        color: ${sampleStatus === 'Autorizado'
+                          ? '#065f46'
+                          : sampleStatus === 'Não Autorizado'
+                          ? '#991b1b'
+                          : '#92400e'};`
+                ) "#{reviewerMessage}"
+
+      tr
+        td(style="padding: 0 20px 20px 20px; text-align: center;")
+          a(
+            href=systemURL
+            target="_blank"
+            style="display: inline-block; background: linear-gradient(to right, #8b5cf6, #6d28d9); color: #ffffff; text-decoration: none; font-weight: 600; padding: 12px 28px; border-radius: 8px; font-size: 14px;"
+          ) Acessar o Sistema
+
+      tr
+        td(style="padding: 20px; text-align: center; font-size: 12px; color: #6b7280; border-top: 1px solid #f3f4f6;")
+          p(style="margin: 0 0 8px 0;") Caso o botão não funcione, copie e cole este link:
+          p(style="margin: 0; word-break: break-all; color: #4b5563;") #{systemURL}
+          p(style="margin: 12px 0 0 0; color: #9ca3af;") Esta mensagem é automática e não deve ser respondida.

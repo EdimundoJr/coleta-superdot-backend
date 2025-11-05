@@ -4,9 +4,20 @@ import { verifyJwt } from "../util/jwt";
 import { issueResearcherAccessToken } from "../service/auth.service";
 
 export const deserializeResearcherJWT = async (req: Request, res: Response, next: NextFunction) => {
-    const accessToken = get(req, "headers.authorization", "").replace(/^Bearer\s/, "");
+    const publicRoutes = [
+        "/api/auth/login",
+        "/api/auth/register",
+    ];
 
-    const refreshToken = get(req, "headers.x-refresh", "");
+    if (publicRoutes.includes(req.path)) {
+        return next();
+    }
+
+    const authHeader = get(req, "headers.authorization", "");
+    const accessToken = (Array.isArray(authHeader) ? authHeader[0] : authHeader).replace(/^Bearer\s/, "");
+
+    const refreshHeader = get(req, "headers.x-refresh", "");
+    const refreshToken = Array.isArray(refreshHeader) ? refreshHeader[0] : refreshHeader;
 
     const { decoded, expired } = verifyJwt(accessToken, "ACCESS_TOKEN_PUBLIC_KEY");
 
@@ -16,26 +27,25 @@ export const deserializeResearcherJWT = async (req: Request, res: Response, next
     }
 
     if (expired && refreshToken) {
-        const { decoded, expired } = verifyJwt(refreshToken as string, "REFRESH_TOKEN_PUBLIC_KEY");
+        const { decoded: decodedRefresh, expired: refreshExpired } = verifyJwt(refreshToken, "REFRESH_TOKEN_PUBLIC_KEY");
 
-        if (expired) {
+        if (!refreshExpired && decodedRefresh) {
+            const researcherId = get(decodedRefresh, "researcherId");
+            if (!researcherId) {
+                return res.status(401).json({ message: "Refresh token inválido" });
+            }
+
+            res.locals.researcherId = researcherId;
+
+            const newAccessToken = issueResearcherAccessToken({
+                researcherId,
+                role: get(decodedRefresh, "userRole"),
+            });
+
+            res.setHeader("x-access-token", newAccessToken);
             return next();
         }
-
-        const researcherId = get(decoded, "researcherId");
-        if (!researcherId) {
-            return next();
-        }
-
-        res.locals.researcherId = get(decoded, "researcherId");
-
-        const newAccessToken = issueResearcherAccessToken({
-            researcherId,
-            role: get(decoded, "userRole"),
-        });
-
-        res.setHeader("x-access-token", newAccessToken);
     }
 
-    next();
+    return res.status(401).json({ message: "jwt expired" });
 };
