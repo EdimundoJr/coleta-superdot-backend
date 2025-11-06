@@ -394,13 +394,13 @@ export async function loadInformationDashboard() {
                         {
                             $group: {
                                 _id: null,
-                                total_samples: { $addToSet: "$researchSamples.sampleTitle" },
+                                total_samples: { $sum: 1 },
                             },
                         },
                         {
                             $project: {
                                 _id: 0,
-                                total_samples: { $size: "$total_samples" },
+                                total_samples: 1,
                             },
                         },
                     ],
@@ -623,7 +623,6 @@ export async function loadInformationDashboard() {
             labels: data.knowledgeAreaDistribution.map((item: any) => item.label),
             series: data.knowledgeAreaDistribution.map((item: any) => item.count)
         };
-
         return {
             count_female: (data.gender_female[0]?.count_female || 0) as number,
             count_male: (data.gender_male[0]?.count_male || 0) as number,
