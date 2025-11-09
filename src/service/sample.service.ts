@@ -4,6 +4,7 @@ import ISample from "../interface/sample.interface";
 import ResearcherModel from "../model/researcher.model";
 import { dispatchNewSampleNotificationEmail, dispatchParticipantIndicationEmail } from "../util/emailSender.util";
 import { getResearcherRole } from "./researcher.service";
+import { create } from "lodash";
 
 
 interface GetSampleByIdParams {
@@ -196,6 +197,8 @@ export async function paginateAllSamples(
                 tcleDocument: "$researchSamples.researchCep.tcleDocument",
                 taleDocument: "$researchSamples.researchCep.taleDocument",
             },
+            createdAt: "$researchSamples.createdAt",
+            updatedAt: "$researchSamples.updatedAt",
         })
         .facet({
             pagination: [{ $count: "totalItems" }, { $addFields: { page: currentPage } }],
@@ -204,7 +207,6 @@ export async function paginateAllSamples(
         .unwind("$pagination")
         .exec();
 
-    console.log(page);
 
     if (!page) {
         throw new Error("Any sample request was created yet.");

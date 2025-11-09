@@ -16,6 +16,7 @@ import { requireResearcherJWT } from "../middleware/requireResearcherJWT.middlew
 import { addParticipantsSchema } from "../dto/sample/addParticipants.dto";
 import { getSampleByIdSchema } from "../dto/sample/getSampleById.dto";
 import * as path from "path";
+import fs from "fs";
 
 const sampleRouter = express.Router();
 
@@ -55,7 +56,22 @@ sampleRouter.get(
     SampleController.handlerGetRequiredDocs
 );
 
-sampleRouter.use("/attachment", express.static(path.resolve(__dirname, "../", "storage/uploads/")));
+sampleRouter.get("/attachment/:fileName", async (req, res) => {
+    try {
+        const { fileName } = req.params;
+        const filePath = path.resolve(__dirname, "../storage/uploads", fileName);
+
+        if (!fs.existsSync(filePath)) {
+            console.warn("Arquivo não encontrado:", filePath);
+            return res.status(404).json({ message: "Arquivo não encontrado" });
+        }
+
+        return res.sendFile(filePath);
+    } catch (err) {
+        console.error("Erro ao enviar arquivo:", err);
+        return res.status(500).json({ message: "Erro ao processar o arquivo" });
+    }
+});
 
 sampleRouter.delete(
     "/deleteSample/:sampleId",

@@ -6,16 +6,15 @@ import { PaginateResearcherDTO, UpdateResearcherDTO, paginateResearcherParams } 
 import { GetResearcherNameBySampleIdDTO } from "../dto/researcher/getResearcherNameBySampleId.dto";
 import { GetResearchDataBySampleIdAndParticipantIdDTO } from "../dto/researcher/getResearchDataBySampleIdAndParticipantId.dto";
 
+
 export async function updateResearcherHandler(
     req: Request,
     res: Response
 ) {
-
     try {
         const researcherId = res.locals.researcherId;
 
-        // Extrair dados do FormData
-        const fullName = req.body['personalData[fullName]'] || req.body.personalData?.fullName;
+        const fullName = req.body.fullName;
         const currentPassword = req.body.currentPassword;
         const password = req.body.password;
         const passwordConfirmation = req.body.passwordConfirmation;
@@ -30,7 +29,8 @@ export async function updateResearcherHandler(
             return res.status(401).json({ message: "Invalid session!" });
         }
 
-        const researcher = await ResearcherService.findResearcher({ _id: researcherId });
+        const researcher = await ResearcherService.findResearcherWithPassword({ _id: researcherId });
+
         if (!researcher) {
             return res.status(404).json({ message: "Researcher not found!" });
         }
@@ -38,12 +38,11 @@ export async function updateResearcherHandler(
         const updatedData: Partial<IResearcher> = {};
         let newPasswordHash: string | undefined;
 
-        // Atualizar dados pessoais
         if (fullName || profilePhotoFilename) {
             updatedData.personalData = { ...researcher.personalData };
 
-            if (fullName !== undefined) {
-                updatedData.personalData.fullName = fullName;
+            if (fullName !== undefined && fullName !== researcher.personalData.fullName) {
+                updatedData.personalData.fullName = fullName.trim();
             }
 
             if (profilePhotoFilename) {
@@ -51,38 +50,47 @@ export async function updateResearcherHandler(
             }
         }
 
-        // Atualizar senha se fornecida
-        if (password) {
-            if (researcher.passwordHash) {
+        if (password && password.trim() !== "") {
+
+            if (researcher.passwordHash && researcher.passwordHash.startsWith("$2")) {
                 if (!currentPassword) {
                     return res.status(400).json({
-                        message: "Current password is required to change your password"
+                        message: "Current password is required to change your password",
+                        code: "PASSWORD_REQUIRED"
                     });
                 }
 
                 const isValid = await compareHashes(currentPassword, researcher.passwordHash);
+
                 if (!isValid) {
                     return res.status(400).json({
-                        message: "Current password is incorrect"
+                        message: "Current password is incorrect",
+                        code: "PASSWORD_INCORRECT"
                     });
                 }
-            }
-
-            // Verificar se as senhas coincidem
-            if (password !== passwordConfirmation) {
+            } else {
                 return res.status(400).json({
-                    message: "Passwords do not match"
+                    message: "This account has no current password set. Contact support.",
+                    code: "NO_PASSWORD_HASH"
                 });
             }
 
-            // Gerar novo hash da senha
+            if (password !== passwordConfirmation) {
+                return res.status(400).json({
+                    message: "Passwords do not match",
+                    code: "PASSWORDS_MISMATCH"
+                });
+            }
+
             newPasswordHash = await hashContent(password);
             updatedData.passwordHash = newPasswordHash;
         }
 
-        // Verificar se há dados para atualizar
-        if (Object.keys(updatedData).length === 0) {
-            return res.status(400).json({ message: "No data to update!" });
+        if (Object.keys(updatedData).length === 0 && !password) {
+            return res.status(400).json({
+                message: "No data to update!",
+                code: "NO_DATA"
+            });
         }
 
         const researcherUpdated = await ResearcherService.updateResearcher(
@@ -91,7 +99,6 @@ export async function updateResearcherHandler(
             { new: true }
         );
 
-        // Criar resposta sem passwordHash
         const responseData = {
             _id: researcherUpdated._id,
             personalData: researcherUpdated.personalData,

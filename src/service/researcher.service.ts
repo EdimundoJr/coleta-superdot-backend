@@ -107,6 +107,20 @@ export async function findResearcher(query: FilterQuery<IResearcher>): Promise<I
     return omit(researcher, "passwordHash");
 }
 
+export async function findResearcherWithPassword(query: FilterQuery<IResearcher>): Promise<IResearcher> {
+    const researcher = await ResearcherModel.findOne(query)
+        .select("+passwordHash")
+        .lean()
+        .exec();
+
+    if (!researcher) {
+        throw new Error("Researcher is not found");
+    }
+
+    return researcher;
+}
+
+
 export async function validatePassword({ email, password }: { email: string; password: string }) {
     const researcher = await ResearcherModel.findOne({ email });
 
