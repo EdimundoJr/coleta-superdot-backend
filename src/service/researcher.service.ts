@@ -6,13 +6,19 @@ import { compareHashes } from "../util/hash";
 import { getSampleById } from "./sample.service";
 import { findParticipantById } from "./participant.service";
 
-export async function createResearcher(researcherData: IResearcher): Promise<IResearcher> {
+
+export async function createResearcher(researcherData: IResearcher) {
     try {
         const researcher = await ResearcherModel.create(researcherData);
         return omit(researcher.toJSON(), "passwordHash");
     } catch (e: any) {
-        console.error(e);
-        throw new Error("Is not possible create Researcher Data");
+        console.error("Erro ao criar pesquisador:", e);
+
+        if (e.code === 11000 && e.keyPattern?.email) {
+            throw new Error("Este e-mail já está cadastrado no sistema.");
+        }
+
+        throw new Error("Erro interno ao criar pesquisador.");
     }
 }
 

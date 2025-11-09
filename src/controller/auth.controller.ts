@@ -41,8 +41,8 @@ export async function registerHandler(req: Request<{}, {}, ResearcherDTO["body"]
     } catch (e: any) {
         console.log(e);
 
-        // TO DO errors handlers
-        res.status(409).send(e.message);
+        const status = e.message.includes("já está cadastrado") ? 409 : 500;
+        res.status(status).json({ message: e.message });
     }
 }
 
