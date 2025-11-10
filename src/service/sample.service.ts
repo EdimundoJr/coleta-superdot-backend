@@ -358,9 +358,32 @@ export async function addParticipants({ sampleId, participants }: AddParticipant
     return true;
 }
 
-export async function loadInformationDashboard() {
+export async function loadInformationDashboard(currentUser: { _id: string; role: string; }, sampleId?: string) {
     try {
-        const result = await ResearcherModel.aggregate([
+        const pipeline: any[] = [];
+        if (currentUser.role !== 'Administrador') {
+            console.log(currentUser);
+            pipeline.push({
+                $match: { _id: new mongoose.Types.ObjectId(currentUser._id) }
+            });
+        }
+        if (sampleId) {
+            pipeline.push({
+                $project: {
+                    researchSamples: {
+                        $filter: {
+                            input: "$researchSamples",
+                            as: "sample",
+                            cond: { $eq: ["$$sample._id", new mongoose.Types.ObjectId(sampleId)] }
+                        }
+                    },
+                    role: 1
+                }
+            });
+        }
+
+
+        pipeline.push(
             {
                 $facet: {
                     gender_female: [
@@ -580,7 +603,8 @@ export async function loadInformationDashboard() {
                     ]
                 },
             },
-        ]);
+        );
+        const result = await ResearcherModel.aggregate(pipeline);
 
         if (!result || result.length === 0) {
             throw new Error("An error occurred while loading information for the dashboard.");

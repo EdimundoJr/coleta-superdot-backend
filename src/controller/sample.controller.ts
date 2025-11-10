@@ -11,6 +11,8 @@ import {
 } from "../dto/sample.dto";
 import { AddParticipantsDTO } from "../dto/sample/addParticipants.dto";
 import { GetSampleByIdDTO } from "../dto/sample/getSampleById.dto";
+import * as ResearcherService from "../service/researcher.service";
+
 
 export async function createSampleHandler(req: Request<{}, {}, CreateSampleDTO["body"], {}>, res: Response) {
     try {
@@ -205,20 +207,38 @@ export async function handlerGetSampleById(req: Request<GetSampleByIdDTO["params
     }
 }
 
-export async function loadDashboard(req: Request<{}, {}, {}, {}>, res: Response) {
+export async function loadDashboard(req: Request, res: Response) {
     try {
+        const researcherId = res.locals.researcherId;
+        const { sampleId } = req.query;
 
-        const result = await SampleService.loadInformationDashboard();
+        if (!researcherId) {
+            return res.status(401).json({ error: "Invalid session!" });
+        }
+
+        const researcher = await ResearcherService.findResearcher({ _id: researcherId });
+
+        if (!researcher) {
+            return res.status(404).json({ error: "Researcher not found" });
+        }
+
+
+        if (!researcher._id || !researcher.role) {
+            return res.status(400).json({ error: "Researcher data is incomplete" });
+        }
+
+        const currentUser = {
+            _id: researcher._id.toString(),
+            role: researcher.role,
+        };
+
+        const result = await SampleService.loadInformationDashboard(currentUser, sampleId as string | undefined);
         res.status(200).json(result);
 
-
     } catch (e: any) {
-        console.error(e);
-
-        // TO DO errors handlers
-        res.status(409).send(e.message);
+        console.error("Error in loadDashboard:", e);
+        res.status(500).json({ error: e.message });
     }
-
 }
 
 export async function answerByGender(req: Request<{}, {}, {}, {}>, res: Response) {
