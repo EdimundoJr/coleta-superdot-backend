@@ -6,7 +6,28 @@ import { verifyJwt } from "../util/jwt";
  * Deserialize participant or second source JWT token and save at locals.
  */
 export const deserializeParticipantJWT = (req: Request<{}, {}, {}, {}>, res: Response, next: NextFunction) => {
+    const publicRoutes = [
+        "/api/auth/login",
+        "/api/auth/register",
+        "/api/participant/validate-verification-code",
+        "/api/participant/send-verification-code/sample",
+        "/api/researcher/get-researcher-name-by-sample",
+        "/api/researcher/get-research-data-by/sample",
+        "/api/formulario-adulto",
+        "formulario-adulto-segunda-fonte",
+        "/api/sample/attachment",
+        "/api/second-source/send-verification-code/sample",
+        "/api/second-source/validate-verification-code/sample"
+
+    ];
+
+    if (publicRoutes.some(route => req.originalUrl.startsWith(route))) {
+        return next();
+    }
+
     const token = get(req, "headers.authorization", "").replace(/^Bearer\s/, "");
+
+
 
     const { decoded } = verifyJwt(token, "ACCESS_TOKEN_PUBLIC_KEY");
 
