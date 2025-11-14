@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import * as ParticipantService from "../service/participant.service";
 import { IParticipant } from "../interface/participant.interface";
-import { EmailAlreadyRegisteredError, FormAlreadyFinished, ObjectNotExists } from "../error/participant.error";
+import { EmailAlreadyRegisteredError, FormAlreadyFinished, ObjectNotExists, SampleFullError } from "../error/participant.error";
 import { PartialDeep } from "type-fest";
 import { SendValidationEmailDTO } from "../dto/participant/sendValidationEmail.dto";
 import { VerifyValidationCodeDTO } from "../dto/participant/verifyValidationCode.dto";
@@ -23,7 +23,7 @@ export async function handlerValidateEmailInSample(
     try {
         const { participantEmail } = req.body;
         const { sampleId } = req.params;
-
+        console.log("aqui primeiro");
         const sent = await ParticipantService.sendEmailVerification({ participantEmail, sampleId });
 
         res.status(201).json(sent);
@@ -39,7 +39,18 @@ export async function handlerValidateEmailInSample(
         }
 
         if (e instanceof FormAlreadyFinished) {
-            return res.status(401).send(e.message);
+            return res.status(409).json({
+                code: "FORM_ALREADY_FINISHED",
+                message: e.message,
+            });
+        }
+
+        if (e instanceof SampleFullError) {
+            return res.status(409).json({
+                code: "SAMPLE_FULL",
+                message: e.message,
+            });
+
         }
 
         // TO DO errors handlers
