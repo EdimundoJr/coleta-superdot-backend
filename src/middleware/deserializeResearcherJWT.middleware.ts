@@ -15,11 +15,17 @@ export const deserializeResearcherJWT = async (req: Request, res: Response, next
         "formulario-adulto-segunda-fonte",
         "/api/sample/attachment",
         "/api/second-source/send-verification-code/sample",
-        "/api/second-source/validate-verification-code/sample"
+        "/api/second-source/validate-verification-code/sample",
+        "/iframe_api",
+        "/embed/",
 
     ];
 
-    if (publicRoutes.some(route => req.originalUrl.startsWith(route))) {
+    if (publicRoutes.some(route => req.originalUrl.includes(route))) {
+        return next();
+    }
+
+    if (!req.originalUrl.startsWith("/api")) {
         return next();
     }
 

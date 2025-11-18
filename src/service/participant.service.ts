@@ -13,7 +13,7 @@ import { issueParticipantAccessToken } from "./auth.service";
 import ISample from "../interface/sample.interface";
 import { omit, update } from "lodash";
 import { finishForm } from "./adultForm.service";
-import { FormAlreadyFinished } from "../error/participant.error";
+import { FormAlreadyFinished, SampleFullError } from "../error/participant.error";
 
 interface FindParticipantByEmailParams {
     sample: ISample;
@@ -63,7 +63,7 @@ export async function sendEmailVerification({ participantEmail, sampleId }: Send
     }
 
     if ((sample.participants?.length || 0) + 1 > sample.qttParticipantsAuthorized)
-        throw new Error("This sample is full of participants.");
+        throw new SampleFullError("This sample is full of participants.");
 
     let participant = findParticipantByEmail({ sample, participantEmail });
 
